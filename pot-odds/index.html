@@ -565,7 +565,8 @@
     </div>
     <div class="top-actions">
       <button class="icon-btn" id="discountBtn" type="button">Discount drill</button>
-      <button class="icon-btn" id="refBtn" type="button">Reference</button>
+      <button class="icon-btn" id="potOddsRefBtn" type="button">Pot odds</button>
+      <button class="icon-btn" id="outsRefBtn" type="button">Outs</button>
     </div>
   </header>
 
@@ -587,37 +588,63 @@
   <footer class="foot">Friendly-game arithmetic, not solver-exact — built to make the Rule of 2 and 4 automatic.</footer>
 </div>
 
-<div class="drawer-backdrop" id="drawerBackdrop">
+<!-- Pot Odds cheat sheet drawer -->
+<div class="drawer-backdrop" id="potOddsDrawer">
   <div class="drawer">
-    <h2>The Rule of 2 and 4</h2>
-    <p class="sub">Quick reference — the same shortcut, every hand.</p>
+    <h2>Pot Odds Cheat Sheet</h2>
+    <p class="sub">How much equity you need based on the bet size.</p>
     <div class="rule-box">
-      After the <b>flop</b> (two cards still to come): <code>outs × 4</code> ≈ your % chance to hit by the river.<br>
-      After the <b>turn</b> (one card left): <code>outs × 2</code> ≈ your % chance to hit on the river.<br><br>
-      Equity needed to call: <code>call ÷ (pot + call) × 100</code>. If your % chance beats that number, it's a profitable call.
+      Formula: <code>call ÷ (pot + call) × 100</code><br>
+      If your equity beats the number below, it's a profitable call.
     </div>
     <table class="ref-table">
-      <thead><tr><th>Draw</th><th>Outs</th></tr></thead>
+      <thead><tr><th>Bet size</th><th>Equity needed</th><th>Example ($100 pot)</th></tr></thead>
       <tbody>
-        <tr><td>Flush draw</td><td class="n">9</td></tr>
-        <tr><td>Open-ended straight draw</td><td class="n">8</td></tr>
-        <tr><td>Gutshot straight draw</td><td class="n">4</td></tr>
-        <tr><td>Two overcards</td><td class="n">6</td></tr>
-        <tr><td>Flush draw + open-ended straight (combo)</td><td class="n">15</td></tr>
-        <tr><td>Pocket pair → trips or two pair</td><td class="n">11 raw / ~5 discounted</td></tr>
+        <tr><td>1/4 pot</td><td class="n">~17%</td><td style="color:var(--ink-faint);font-size:0.8rem">$25 to call</td></tr>
+        <tr><td>1/3 pot</td><td class="n">~25%</td><td style="color:var(--ink-faint);font-size:0.8rem">$33 to call</td></tr>
+        <tr><td>1/2 pot</td><td class="n">~33%</td><td style="color:var(--ink-faint);font-size:0.8rem">$50 to call</td></tr>
+        <tr><td>2/3 pot</td><td class="n">~40%</td><td style="color:var(--ink-faint);font-size:0.8rem">$67 to call</td></tr>
+        <tr><td>3/4 pot</td><td class="n">~43%</td><td style="color:var(--ink-faint);font-size:0.8rem">$75 to call</td></tr>
+        <tr><td>Pot-sized</td><td class="n">~50%</td><td style="color:var(--ink-faint);font-size:0.8rem">$100 to call</td></tr>
+        <tr><td>2× pot</td><td class="n">~67%</td><td style="color:var(--ink-faint);font-size:0.8rem">$200 to call</td></tr>
       </tbody>
     </table>
-    <h3>Not all outs are equal</h3>
+    <h3>Quick memory trick</h3>
     <div class="rule-box">
-      A flush or straight out is close to a lock when it lands. A pocket pair improving to two pair is a weaker kind
-      of out — the same card that pairs the board for you can just as easily give an opponent trips, or you simply
-      run into a bigger two pair or an overpair. Simulating pocket 3s on a K-9-2 board: the out that makes trips
-      wins near 97% of the time, but each out that only makes two pair wins closer to 55–60%. That's why the sheet
-      counts trips outs at full value and shrinks the two-pair outs down to roughly a third — 9 raw outs become
-      about 3, for a total of ~5 instead of the raw 11. Flush, straight, and overcard outs don't need this treatment
-      — they're already clean. Use the <b>Discount drill</b> button to practice spotting when a discount applies.
+      A half-pot bet means you're getting 3:1 on your money — you need to win 1 in 3 times (33%). A pot-sized bet gives you 2:1 — win 1 in 2 (50%). Bigger bet = more equity required.
     </div>
-    <button class="ghost-btn drawer-close" id="drawerClose" type="button">Close</button>
+    <button class="ghost-btn drawer-close" id="potOddsDrawerClose" type="button">Close</button>
+  </div>
+</div>
+
+<!-- Outs cheat sheet drawer -->
+<div class="drawer-backdrop" id="outsDrawer">
+  <div class="drawer">
+    <h2>Outs Cheat Sheet</h2>
+    <p class="sub">The Rule of 2 &amp; 4 — same shortcut every hand.</p>
+    <div class="rule-box">
+      After the <b>flop</b> (2 cards to come): <code>outs × 4</code> ≈ % to hit by the river.<br>
+      After the <b>turn</b> (1 card left): <code>outs × 2</code> ≈ % to hit on the river.
+    </div>
+    <table class="ref-table">
+      <thead><tr><th>Draw type</th><th>Outs</th><th>Flop equity</th><th>Turn equity</th></tr></thead>
+      <tbody>
+        <tr><td>Gutshot (inside straight)</td><td class="n">4</td><td>~16%</td><td>~8%</td></tr>
+        <tr><td>Two overcards</td><td class="n">6</td><td>~24%</td><td>~12%</td></tr>
+        <tr><td>Open-ended straight</td><td class="n">8</td><td>~32%</td><td>~16%</td></tr>
+        <tr><td>Flush draw</td><td class="n">9</td><td>~36%</td><td>~18%</td></tr>
+        <tr><td>Straight + two overcards</td><td class="n">10–12</td><td>~40–48%</td><td>~20–24%</td></tr>
+        <tr><td>Flush + gutshot</td><td class="n">12</td><td>~48%</td><td>~24%</td></tr>
+        <tr><td>Flush + open-ended straight</td><td class="n">15</td><td>~54%*</td><td>~30%</td></tr>
+        <tr><td>Pocket pair → trips/two pair</td><td class="n">11 raw / ~5 eff.</td><td>~20%</td><td>~10%</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.75rem;color:var(--ink-faint);margin-top:8px">* ×4 overestimates slightly above 12 outs — actual combo draw equity is closer to 54% not 60%.</p>
+    <h3>Discounting weak outs</h3>
+    <div class="rule-box">
+      Not every out wins at full value. A pocket pair improving to <i>two pair</i> only wins ~55–60% of the time when it hits — the board pairs for your opponent too. Count trips outs at full value; shrink two-pair outs to about a third. Use the <b>Discount drill</b> to practice this.
+    </div>
+    <button class="ghost-btn drawer-close" id="outsDrawerClose" type="button">Close</button>
   </div>
 </div>
 
@@ -918,9 +945,14 @@
     }
     document.getElementById('boardRow').innerHTML = boardHtml;
     document.getElementById('holeRow').innerHTML = S.hole.map(cardHtml).join('');
-    document.getElementById('potStrip').innerHTML =
-      '<div class="pot-item"><div class="v">' + fmtMoney(S.pot) + '</div><div class="k">Pot</div></div>' +
+    var stepsWithEquity = ['outsRevealed','discountRevealed','potoddsRevealed','decisionRevealed'];
+    var showEquity = stepsWithEquity.indexOf(S.step) !== -1 && !(isPairDraw() && S.step === 'outsRevealed');
+    var showNeeded = S.step === 'potoddsRevealed' || S.step === 'decisionRevealed';
+    var potHtml = '<div class="pot-item"><div class="v">' + fmtMoney(S.pot) + '</div><div class="k">Pot</div></div>' +
       '<div class="pot-item"><div class="v">' + fmtMoney(S.bet) + '</div><div class="k">To call</div></div>';
+    if (showEquity) potHtml += '<div class="pot-item"><div class="v" style="color:var(--good)">' + currentEquity() + '%</div><div class="k">Your equity</div></div>';
+    if (showNeeded) potHtml += '<div class="pot-item"><div class="v" style="color:var(--bad)">' + fmtPct(currentReqPct()) + '</div><div class="k">Need to call</div></div>';
+    document.getElementById('potStrip').innerHTML = potHtml;
   }
 
   function renderDrill() {
@@ -999,7 +1031,8 @@
 
   function drillStepPotOddsDone() {
     var req = currentReqPct(), g = grade(Math.abs(S.potOddsGuess - req), 1, 4);
-    return '<div class="drill-step"><p class="prompt">What equity do you need to call?</p>' +
+    return '<div class="drill-step"><p class="prompt">What equity do you need to call?' +
+      '<span class="formula">' + S.bet + ' ÷ (' + S.pot + ' + ' + S.bet + ') × 100 = <b style="color:var(--ink)">' + fmtPct(req) + '</b></span></p>' +
       '<div class="reveal"><span>You said <b>' + S.potOddsGuess + '%</b> · actual is </span><span class="big">' + fmtPct(req) + '</span><span class="grade ' + g + '">' + gradeLabel(g) + '</span></div></div>';
   }
 
@@ -1071,10 +1104,15 @@
     if (nextBtn) nextBtn.addEventListener('click', function () { newHand(); });
   }
 
-  var backdrop = document.getElementById('drawerBackdrop');
-  document.getElementById('refBtn').addEventListener('click', function () { backdrop.classList.add('open'); });
-  document.getElementById('drawerClose').addEventListener('click', function () { backdrop.classList.remove('open'); });
-  backdrop.addEventListener('click', function (e) { if (e.target === backdrop) backdrop.classList.remove('open'); });
+  var potOddsDrawer = document.getElementById('potOddsDrawer');
+  var outsDrawer = document.getElementById('outsDrawer');
+  function closeAll() { potOddsDrawer.classList.remove('open'); outsDrawer.classList.remove('open'); }
+  document.getElementById('potOddsRefBtn').addEventListener('click', function () { closeAll(); potOddsDrawer.classList.add('open'); });
+  document.getElementById('outsRefBtn').addEventListener('click', function () { closeAll(); outsDrawer.classList.add('open'); });
+  document.getElementById('potOddsDrawerClose').addEventListener('click', closeAll);
+  document.getElementById('outsDrawerClose').addEventListener('click', closeAll);
+  potOddsDrawer.addEventListener('click', function (e) { if (e.target === potOddsDrawer) closeAll(); });
+  outsDrawer.addEventListener('click', function (e) { if (e.target === outsDrawer) closeAll(); });
   document.getElementById('discountBtn').addEventListener('click', function () { newHand('pairdraw'); });
 
   newHand();
