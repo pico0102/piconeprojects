@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pot Odds Table — Picone Projects</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap">
+  <style>
+    /* ---- Site nav ---- */
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(238, 241, 234, 0.9);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid #ccd3c1;
+      padding: 10px 16px;
+    }
+    .site-nav a {
+      font-family: "Manrope", sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #5c6657;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.12s;
+    }
+    .site-nav a:hover { color: #1b211c; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .site-nav {
+        background: rgba(14, 21, 18, 0.9);
+        border-bottom-color: #2b3c33;
+      }
+      :root:not([data-theme="light"]) .site-nav a { color: #9fb0a2; }
+      :root:not([data-theme="light"]) .site-nav a:hover { color: #eef2ea; }
+    }
+    :root[data-theme="dark"] .site-nav {
+      background: rgba(14, 21, 18, 0.9);
+      border-bottom-color: #2b3c33;
+    }
+    :root[data-theme="dark"] .site-nav a { color: #9fb0a2; }
+    :root[data-theme="dark"] .site-nav a:hover { color: #eef2ea; }
+
+    /* ---- App styles ---- */
+    :root {
+      --bg: #eef1ea;
+      --felt: #dbe2d3;
+      --felt-line: #c3cdb7;
+      --surface: #ffffff;
+      --surface-2: #e4e8dd;
+      --border: #ccd3c1;
+      --ink: #1b211c;
+      --ink-dim: #5c6657;
+      --ink-faint: #8b9385;
+      --accent: #9c6f1c;
+      --accent-strong: #7d580f;
+      --accent-ink: #fffaf0;
+      --good: #2f8f52;
+      --good-bg: #e2f1e6;
+      --bad: #b8442c;
+      --bad-bg: #f7e5e0;
+      --suit-red: #b8442c;
+      --suit-black: #1b211c;
+      --shadow: 0 1px 2px rgba(20, 30, 20, 0.06), 0 8px 24px -12px rgba(20, 30, 20, 0.18);
+      --radius: 14px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0e1512;
+        --felt: #16211b;
+        --felt-line: #24352a;
+        --surface: #182420;
+        --surface-2: #1f2e27;
+        --border: #2b3c33;
+        --ink: #eef2ea;
+        --ink-dim: #9fb0a2;
+        --ink-faint: #6c7c70;
+        --accent: #d9a84e;
+        --accent-strong: #ecc06e;
+        --accent-ink: #191206;
+        --good: #6fc98a;
+        --good-bg: #17301f;
+        --bad: #e2795f;
+        --bad-bg: #35201a;
+        --suit-red: #e2795f;
+        --suit-black: #eef2ea;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -14px rgba(0, 0, 0, 0.6);
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #0e1512;
+      --felt: #16211b;
+      --felt-line: #24352a;
+      --surface: #182420;
+      --surface-2: #1f2e27;
+      --border: #2b3c33;
+      --ink: #eef2ea;
+      --ink-dim: #9fb0a2;
+      --ink-faint: #6c7c70;
+      --accent: #d9a84e;
+      --accent-strong: #ecc06e;
+      --accent-ink: #191206;
+      --good: #6fc98a;
+      --good-bg: #17301f;
+      --bad: #e2795f;
+      --bad-bg: #35201a;
+      --suit-red: #e2795f;
+      --suit-black: #eef2ea;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -14px rgba(0, 0, 0, 0.6);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      padding: 20px 14px 64px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+    }
+
+    .wrap { max-width: 640px; margin: 0 auto; }
+
+    header.top {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .wordmark {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+      font-size: 1.5rem;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+    }
+    .wordmark span { color: var(--accent-strong); font-style: italic; }
+    .tagline {
+      font-size: 0.8rem;
+      color: var(--ink-dim);
+      margin-top: 2px;
+    }
+    .top-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      font-family: "Manrope", sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      background: var(--surface);
+      color: var(--ink-dim);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 13px;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .icon-btn:hover { color: var(--ink); border-color: var(--ink-faint); }
+    .icon-btn:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .stats-rail {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .stat {
+      background: var(--surface);
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .stat-num {
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 1.15rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-faint);
+      margin-top: 2px;
+    }
+
+    .table-card {
+      background: var(--felt);
+      border: 1px solid var(--felt-line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 18px;
+      margin-bottom: 14px;
+    }
+    .street-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-strong);
+      background: color-mix(in srgb, var(--accent) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      border-radius: 999px;
+      padding: 4px 10px;
+      margin-bottom: 12px;
+    }
+    .board-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .hole-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .zone-label {
+      text-align: center;
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-dim);
+      margin: 0 0 8px;
+    }
+    .hole-wrap { margin-top: 14px; }
+
+    .card {
+      width: 56px;
+      height: 78px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+      flex-shrink: 0;
+    }
+    .card .rank {
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+    .card .suit { font-size: 1.35rem; line-height: 1.1; margin-top: 2px; }
+    .card.red .rank, .card.red .suit { color: var(--suit-red); }
+    .card.black .rank, .card.black .suit { color: var(--suit-black); }
+    .card.ghost {
+      background: transparent;
+      border: 1.5px dashed color-mix(in srgb, var(--accent) 55%, var(--felt-line));
+    }
+    .card.ghost .rank, .card.ghost .suit { color: color-mix(in srgb, var(--accent) 70%, var(--felt-line)); }
+    .card.ghost .suit { font-size: 1rem; }
+    @media (min-width: 480px) {
+      .card { width: 64px; height: 90px; }
+      .card .rank { font-size: 1.35rem; }
+      .card .suit { font-size: 1.5rem; }
+    }
+
+    .pot-strip {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--felt-line);
+      flex-wrap: wrap;
+    }
+    .pot-item { text-align: center; }
+    .pot-item .v {
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 1.05rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .pot-item .k {
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-dim);
+    }
+
+    .drill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .drill-step + .drill-step {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .prompt {
+      font-weight: 700;
+      font-size: 0.98rem;
+      margin: 0 0 10px;
+    }
+    .prompt .formula {
+      display: block;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 600;
+      font-size: 0.82rem;
+      color: var(--ink-dim);
+      margin-top: 4px;
+    }
+    .answer-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    input[type="number"] {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 1.05rem;
+      font-weight: 600;
+      width: 92px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface-2);
+      color: var(--ink);
+    }
+    input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
+    .suffix { font-size: 0.85rem; color: var(--ink-dim); font-weight: 600; }
+
+    button.primary {
+      font-family: "Manrope", sans-serif;
+      font-weight: 800;
+      font-size: 0.88rem;
+      letter-spacing: 0.01em;
+      background: var(--accent);
+      color: var(--accent-ink);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: transform .08s ease, background .15s;
+    }
+    button.primary:hover { background: var(--accent-strong); }
+    button.primary:active { transform: scale(0.98); }
+    button.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    button.ghost-btn {
+      font-family: "Manrope", sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      background: transparent;
+      color: var(--ink);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 16px;
+      cursor: pointer;
+    }
+    button.ghost-btn:hover { border-color: var(--ink-faint); }
+
+    .choice-row { display: flex; gap: 10px; }
+    .choice-row button { flex: 1; }
+    button.call-btn { background: var(--good); color: #08210f; }
+    button.call-btn:hover { filter: brightness(1.05); }
+    button.fold-btn { background: var(--bad); color: #2b0d05; }
+    button.fold-btn:hover { filter: brightness(1.05); }
+
+    .reveal {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .reveal .big {
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+    .grade {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+    .grade.exact { background: var(--good-bg); color: var(--good); }
+    .grade.close { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-strong); }
+    .grade.off { background: var(--bad-bg); color: var(--bad); }
+
+    .out-cards { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+    .chip {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 3px 6px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+    .chip.red { color: var(--suit-red); }
+    .chip.black { color: var(--suit-black); }
+    .chip.weak { opacity: 0.55; border-style: dashed; }
+
+    .outs-group { margin-top: 10px; }
+    .outs-group-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    .outs-group-label.strong { color: var(--good); }
+    .outs-group-label.weak { color: var(--ink-dim); }
+
+    .verdict-box {
+      margin-top: 10px;
+      border-radius: 10px;
+      padding: 12px 14px;
+      border: 1.5px solid;
+    }
+    .verdict-box.win { background: var(--good-bg); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
+    .verdict-box.loss { background: var(--bad-bg); border-color: color-mix(in srgb, var(--bad) 45%, transparent); }
+    .verdict-title { font-weight: 800; font-size: 0.92rem; margin-bottom: 3px; }
+    .verdict-box.win .verdict-title { color: var(--good); }
+    .verdict-box.loss .verdict-title { color: var(--bad); }
+    .verdict-detail { font-size: 0.84rem; color: var(--ink-dim); line-height: 1.45; }
+    .verdict-detail b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+    .river-note {
+      margin-top: 12px;
+      font-size: 0.84rem;
+      color: var(--ink-dim);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .deal-cta { text-align: center; padding: 8px 0 4px; }
+    .deal-cta p { color: var(--ink-dim); font-size: 0.88rem; margin: 0 0 14px; }
+
+    .drawer-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(10, 14, 10, 0.5);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 40;
+      padding: 0;
+    }
+    .drawer-backdrop.open { display: flex; }
+    .drawer {
+      background: var(--surface);
+      color: var(--ink);
+      width: 100%;
+      max-width: 640px;
+      max-height: 84vh;
+      overflow-y: auto;
+      border-radius: 18px 18px 0 0;
+      padding: 20px 20px 28px;
+      box-shadow: 0 -12px 32px rgba(0,0,0,0.25);
+    }
+    @media (min-width: 700px) {
+      .drawer-backdrop { align-items: center; }
+      .drawer { border-radius: var(--radius); max-height: 80vh; }
+    }
+    .drawer h2 {
+      font-family: "Fraunces", serif;
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin: 0 0 4px;
+    }
+    .drawer .sub { color: var(--ink-dim); font-size: 0.85rem; margin: 0 0 16px; }
+    .ref-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .ref-table th {
+      text-align: left;
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ink-faint);
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ref-table td { padding: 8px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .ref-table .n {
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      color: var(--accent-strong);
+    }
+    .rule-box {
+      background: var(--surface-2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .rule-box code {
+      font-family: "JetBrains Mono", monospace;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 5px;
+    }
+    .drawer-close {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+    }
+    .drawer h3 {
+      font-family: "Manrope", sans-serif;
+      font-size: 0.85rem;
+      font-weight: 800;
+      margin: 18px 0 6px;
+    }
+
+    .mode-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-dim);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      margin: 0 0 12px 6px;
+    }
+
+    footer.foot {
+      text-align: center;
+      color: var(--ink-faint);
+      font-size: 0.74rem;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="/">&#8592; Picone Projects</a>
+  </nav>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="wordmark">Pot Odds <span>Table</span></div>
+      <div class="tagline">Count outs → ×4 or ×2 → compare to pot odds → call or fold.</div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="discountBtn" type="button">Discount drill</button>
+      <button class="icon-btn" id="refBtn" type="button">Reference</button>
+    </div>
+  </header>
+
+  <div class="stats-rail" id="statsRail" aria-live="polite"></div>
+
+  <div class="table-card">
+    <span class="street-tag" id="streetTag">Flop</span><span class="mode-tag" id="modeTag" style="display:none">Discount drill</span>
+    <div class="zone-label">Board</div>
+    <div class="board-row" id="boardRow"></div>
+    <div class="hole-wrap">
+      <div class="zone-label">Your hand</div>
+      <div class="hole-row" id="holeRow"></div>
+    </div>
+    <div class="pot-strip" id="potStrip"></div>
+  </div>
+
+  <div class="drill" id="drill"></div>
+
+  <footer class="foot">Friendly-game arithmetic, not solver-exact — built to make the Rule of 2 and 4 automatic.</footer>
+</div>
+
+<div class="drawer-backdrop" id="drawerBackdrop">
+  <div class="drawer">
+    <h2>The Rule of 2 and 4</h2>
+    <p class="sub">Quick reference — the same shortcut, every hand.</p>
+    <div class="rule-box">
+      After the <b>flop</b> (two cards still to come): <code>outs × 4</code> ≈ your % chance to hit by the river.<br>
+      After the <b>turn</b> (one card left): <code>outs × 2</code> ≈ your % chance to hit on the river.<br><br>
+      Equity needed to call: <code>call ÷ (pot + call) × 100</code>. If your % chance beats that number, it's a profitable call.
+    </div>
+    <table class="ref-table">
+      <thead><tr><th>Draw</th><th>Outs</th></tr></thead>
+      <tbody>
+        <tr><td>Flush draw</td><td class="n">9</td></tr>
+        <tr><td>Open-ended straight draw</td><td class="n">8</td></tr>
+        <tr><td>Gutshot straight draw</td><td class="n">4</td></tr>
+        <tr><td>Two overcards</td><td class="n">6</td></tr>
+        <tr><td>Flush draw + open-ended straight (combo)</td><td class="n">15</td></tr>
+        <tr><td>Pocket pair → trips or two pair</td><td class="n">11 raw / ~5 discounted</td></tr>
+      </tbody>
+    </table>
+    <h3>Not all outs are equal</h3>
+    <div class="rule-box">
+      A flush or straight out is close to a lock when it lands. A pocket pair improving to two pair is a weaker kind
+      of out — the same card that pairs the board for you can just as easily give an opponent trips, or you simply
+      run into a bigger two pair or an overpair. Simulating pocket 3s on a K-9-2 board: the out that makes trips
+      wins near 97% of the time, but each out that only makes two pair wins closer to 55–60%. That's why the sheet
+      counts trips outs at full value and shrinks the two-pair outs down to roughly a third — 9 raw outs become
+      about 3, for a total of ~5 instead of the raw 11. Flush, straight, and overcard outs don't need this treatment
+      — they're already clean. Use the <b>Discount drill</b> button to practice spotting when a discount applies.
+    </div>
+    <button class="ghost-btn drawer-close" id="drawerClose" type="button">Close</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var RANKS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
+  var SUITS = ['s', 'h', 'd', 'c'];
+
+  function mkCard(ri, suit) { return { rank: RANKS[ri], suit: suit, ri: ri }; }
+  function ckey(c) { return c.rank + c.suit; }
+  function randInt(n) { return Math.floor(Math.random() * n); }
+  function choice(arr) { return arr[randInt(arr.length)]; }
+  function shuffleArr(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = randInt(i + 1); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function fullDeck() {
+    var d = [];
+    for (var r = 0; r < 13; r++) for (var s = 0; s < 4; s++) d.push(mkCard(r, SUITS[s]));
+    return d;
+  }
+  function without(deck, cards) {
+    var used = {};
+    cards.forEach(function (c) { used[ckey(c)] = true; });
+    return deck.filter(function (c) { return !used[ckey(c)]; });
+  }
+
+  function tplFlushDraw() {
+    var suit = choice(SUITS);
+    var offSuits = SUITS.filter(function (s) { return s !== suit; });
+    var ranks4 = shuffleArr([0,1,2,3,4,5,6,7,8,9,10,11,12]).slice(0, 4);
+    var used = {}; ranks4.forEach(function (r) { used[r] = true; });
+    var blankRank; do { blankRank = randInt(13); } while (used[blankRank]);
+    var hole = [mkCard(ranks4[0], suit), mkCard(ranks4[1], suit)];
+    var board = [mkCard(ranks4[2], suit), mkCard(ranks4[3], suit), mkCard(blankRank, choice(offSuits))];
+    var dealt = hole.concat(board);
+    var outs = without(fullDeck(), dealt).filter(function (c) { return c.suit === suit; });
+    return { hole: hole, board: board, outs: outs, label: 'Flush draw', tag: 'flush' };
+  }
+
+  function tplOpenEnded() {
+    var b = 2 + randInt(7);
+    var run = [b, b + 1, b + 2, b + 3];
+    var completions = [b - 1, b + 4];
+    var suits = shuffleArr(SUITS);
+    var hole = [mkCard(run[2], suits[0]), mkCard(run[3], suits[1])];
+    var board2 = [mkCard(run[0], suits[0]), mkCard(run[1], suits[1])];
+    var used = {}; run.concat(completions).forEach(function (r) { used[r] = true; });
+    var blankRank; do { blankRank = randInt(13); } while (used[blankRank]);
+    var board = board2.concat([mkCard(blankRank, choice(SUITS))]);
+    var dealt = hole.concat(board);
+    var outs = without(fullDeck(), dealt).filter(function (c) { return completions.indexOf(c.ri) !== -1; });
+    return { hole: hole, board: board, outs: outs, label: 'Open-ended straight draw', tag: 'oesd' };
+  }
+
+  function tplGutshot() {
+    var b = 2 + randInt(7);
+    var holeRanks = [b + 3, b + 4];
+    var boardRanks = [b, b + 2];
+    var gapRank = b + 1;
+    var suits = shuffleArr(SUITS);
+    var hole = [mkCard(holeRanks[0], suits[0]), mkCard(holeRanks[1], suits[1])];
+    var board2 = [mkCard(boardRanks[0], suits[0]), mkCard(boardRanks[1], suits[1])];
+    var used = {}; [b - 1, b, b + 1, b + 2, b + 3, b + 4, b + 5, b + 6].forEach(function (r) { used[r] = true; });
+    var blankRank; do { blankRank = randInt(13); } while (used[blankRank]);
+    var board = board2.concat([mkCard(blankRank, choice(SUITS))]);
+    var dealt = hole.concat(board);
+    var outs = without(fullDeck(), dealt).filter(function (c) { return c.ri === gapRank; });
+    return { hole: hole, board: board, outs: outs, label: 'Gutshot straight draw', tag: 'gutshot' };
+  }
+
+  function tplOvercards() {
+    var highIdx = shuffleArr([8, 9, 10, 11, 12]).slice(0, 2);
+    var lowIdx = shuffleArr([0, 1, 2, 3, 4, 5]).slice(0, 3);
+    var suits = shuffleArr(SUITS);
+    var hole = [mkCard(highIdx[0], suits[0]), mkCard(highIdx[1], suits[1])];
+    var board = lowIdx.map(function (r, i) { return mkCard(r, suits[(i + 2) % 4]); });
+    var dealt = hole.concat(board);
+    var outs = without(fullDeck(), dealt).filter(function (c) { return highIdx.indexOf(c.ri) !== -1; });
+    return { hole: hole, board: board, outs: outs, label: 'Two overcards', tag: 'overcards' };
+  }
+
+  function tplCombo() {
+    var suit = choice(SUITS);
+    var offSuit = choice(SUITS.filter(function (s) { return s !== suit; }));
+    var b = 2 + randInt(7);
+    var run = [b, b + 1, b + 2, b + 3];
+    var completions = [b - 1, b + 4];
+    var hole = [mkCard(run[2], suit), mkCard(run[3], suit)];
+    var board2 = [mkCard(run[0], suit), mkCard(run[1], suit)];
+    var used = {}; run.concat(completions).forEach(function (r) { used[r] = true; });
+    var blankRank; do { blankRank = randInt(13); } while (used[blankRank]);
+    var board = board2.concat([mkCard(blankRank, offSuit)]);
+    var dealt = hole.concat(board);
+    var remaining = without(fullDeck(), dealt);
+    var outs = remaining.filter(function (c) { return c.suit === suit || completions.indexOf(c.ri) !== -1; });
+    return { hole: hole, board: board, outs: outs, label: 'Combo draw (flush + straight)', tag: 'combo' };
+  }
+
+  function tplPocketPair() {
+    var pairIdx = randInt(9);
+    var holeSuits = shuffleArr(SUITS).slice(0, 2);
+    var hole = [mkCard(pairIdx, holeSuits[0]), mkCard(pairIdx, holeSuits[1])];
+    var otherRanks = [];
+    for (var r = 0; r < 13; r++) if (r !== pairIdx) otherRanks.push(r);
+    var boardRanks = shuffleArr(otherRanks).slice(0, 3);
+    var boardSuits = shuffleArr(SUITS).slice(0, 3);
+    var board = boardRanks.map(function (r, i) { return mkCard(r, boardSuits[i]); });
+    var dealt = hole.concat(board);
+    var deckRemaining = without(fullDeck(), dealt);
+    var tripsOuts = deckRemaining.filter(function (c) { return c.ri === pairIdx; });
+    var boardPairOuts = deckRemaining.filter(function (c) { return boardRanks.indexOf(c.ri) !== -1; });
+    var outs = tripsOuts.concat(boardPairOuts);
+    return {
+      hole: hole, board: board, outs: outs,
+      tripsOuts: tripsOuts, boardPairOuts: boardPairOuts,
+      label: 'Pocket pair — improve to trips or two pair', tag: 'pairdraw'
+    };
+  }
+
+  function completesStraight(existingRanks, candidateRank) {
+    var withCandidate = {};
+    for (var k in existingRanks) withCandidate[k] = true;
+    withCandidate[candidateRank] = true;
+    for (var start = 0; start <= 8; start++) {
+      var all = true;
+      for (var i = 0; i < 5; i++) { if (!withCandidate[start + i]) { all = false; break; } }
+      if (all) return true;
+    }
+    return false;
+  }
+  function hasHiddenStraightOut(hole, board, outs) {
+    var dealt = hole.concat(board);
+    var existingRanks = {};
+    dealt.forEach(function (c) { existingRanks[c.ri] = true; });
+    var declaredKeys = {};
+    outs.forEach(function (c) { declaredKeys[ckey(c)] = true; });
+    var deck = without(fullDeck(), dealt);
+    for (var i = 0; i < deck.length; i++) {
+      var c = deck[i];
+      if (completesStraight(existingRanks, c.ri) && !declaredKeys[ckey(c)]) return true;
+    }
+    return false;
+  }
+  function withNoHiddenStraight(buildFn) {
+    return function () {
+      var result, guard = 0;
+      do { result = buildFn(); guard++; } while (hasHiddenStraightOut(result.hole, result.board, result.outs) && guard < 200);
+      return result;
+    };
+  }
+  tplFlushDraw = withNoHiddenStraight(tplFlushDraw);
+  tplOpenEnded = withNoHiddenStraight(tplOpenEnded);
+  tplGutshot = withNoHiddenStraight(tplGutshot);
+  tplOvercards = withNoHiddenStraight(tplOvercards);
+  tplCombo = withNoHiddenStraight(tplCombo);
+  tplPocketPair = withNoHiddenStraight(tplPocketPair);
+
+  var TEMPLATES = [tplFlushDraw, tplOpenEnded, tplGutshot, tplOvercards, tplCombo, tplPocketPair];
+  function dealScenario() { return choice(TEMPLATES)(); }
+  function discountedCount(tripsCount, boardPairCount) { return tripsCount + Math.round(boardPairCount / 3); }
+
+  var POT_SIZES = [15, 20, 25, 30, 40, 50, 60, 75, 90, 100, 120, 150];
+  var BET_RATIOS = [0.33, 0.5, 0.66, 0.75, 1, 1.25];
+  function roundNice(n) { return Math.max(5, Math.round(n / 5) * 5); }
+  function makeBet(pot) { return roundNice(pot * choice(BET_RATIOS)); }
+  function potOddsPct(pot, bet) { return (bet / (pot + bet)) * 100; }
+
+  var STATS_KEY = 'potOddsTableStatsV1';
+  var stats = { hands: 0, decisions: 0, decisionsCorrect: 0, streak: 0, bestStreak: 0 };
+  try {
+    var saved = localStorage.getItem(STATS_KEY);
+    if (saved) { var parsed = JSON.parse(saved); for (var k in stats) if (parsed[k] !== undefined) stats[k] = parsed[k]; }
+  } catch (e) {}
+  function saveStats() { try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch (e) {} }
+
+  var SUIT_GLYPH = { s: '♠', h: '♥', d: '♦', c: '♣' };
+  function cardColor(c) { return (c.suit === 'h' || c.suit === 'd') ? 'red' : 'black'; }
+  function cardHtml(c) {
+    return '<div class="card ' + cardColor(c) + '"><div class="rank">' + c.rank + '</div><div class="suit">' + SUIT_GLYPH[c.suit] + '</div></div>';
+  }
+  function ghostHtml() { return '<div class="card ghost"><div class="rank">?</div><div class="suit">·</div></div>'; }
+  function chipHtml(c) {
+    return '<span class="chip ' + cardColor(c) + '">' + c.rank + SUIT_GLYPH[c.suit] + '</span>';
+  }
+  function fmtMoney(n) { return '$' + n; }
+  function fmtPct(n) { return Math.round(n) + '%'; }
+
+  function grade(diff, exactMax, closeMax) {
+    if (diff <= exactMax) return 'exact';
+    if (diff <= closeMax) return 'close';
+    return 'off';
+  }
+  function gradeLabel(g) { return g === 'exact' ? 'Nailed it' : g === 'close' ? 'Close' : 'Off'; }
+
+  var S = null;
+
+  function newHand(forceTag) {
+    var scenario = forceTag === 'pairdraw' ? tplPocketPair() : dealScenario();
+    var pot = choice(POT_SIZES);
+    var bet = makeBet(pot);
+    S = {
+      hole: scenario.hole, board: scenario.board, label: scenario.label,
+      scenarioTag: scenario.tag, street: 'flop',
+      flopOuts: scenario.outs, flopTripsOuts: scenario.tripsOuts || null,
+      flopBoardPairOuts: scenario.boardPairOuts || null,
+      pot: pot, bet: bet, step: 'outs',
+      outsGuess: null, discountGuess: null, potOddsGuess: null, decision: null,
+      turnCard: null, turnOuts: null, turnTripsOuts: null, turnBoardPairOuts: null,
+      riverCard: null, handEnded: false
+    };
+    render();
+  }
+
+  function isPairDraw() { return S.scenarioTag === 'pairdraw'; }
+  function rawOuts() { return S.street === 'flop' ? S.flopOuts : S.turnOuts; }
+  function tripsOuts() { return S.street === 'flop' ? S.flopTripsOuts : S.turnTripsOuts; }
+  function boardPairOuts() { return S.street === 'flop' ? S.flopBoardPairOuts : S.turnBoardPairOuts; }
+  function currentMultiplier() { return S.street === 'flop' ? 4 : 2; }
+  function equityOutsCount() {
+    return isPairDraw() ? discountedCount(tripsOuts().length, boardPairOuts().length) : rawOuts().length;
+  }
+  function currentEquity() { return equityOutsCount() * currentMultiplier(); }
+  function currentReqPct() { return potOddsPct(S.pot, S.bet); }
+
+  function submitOuts(val) { S.outsGuess = val; S.step = 'outsRevealed'; render(); }
+  function submitDiscount(val) { S.discountGuess = val; S.step = 'discountRevealed'; render(); }
+  function submitPotOdds(val) { S.potOddsGuess = val; S.step = 'potoddsRevealed'; render(); }
+
+  function submitDecision(choiceStr) {
+    S.decision = choiceStr;
+    var equity = currentEquity(), req = currentReqPct();
+    var correctChoice = equity > req ? 'call' : (equity < req ? 'fold' : 'either');
+    var isCorrect = correctChoice === 'either' ? true : (choiceStr === correctChoice);
+    stats.decisions++;
+    if (isCorrect) { stats.decisionsCorrect++; stats.streak++; if (stats.streak > stats.bestStreak) stats.bestStreak = stats.streak; }
+    else { stats.streak = 0; }
+    saveStats();
+    S.decisionCorrect = isCorrect; S.correctChoice = correctChoice; S.step = 'decisionRevealed';
+    if (choiceStr === 'fold') { S.handEnded = true; stats.hands++; saveStats(); render(); return; }
+    if (S.street === 'flop') {
+      var potAfter = S.pot + S.bet * 2;
+      var deck1 = without(fullDeck(), S.hole.concat(S.board));
+      var turnCard = choice(deck1);
+      S.turnCard = turnCard;
+      var hitKeys = {}; S.flopOuts.forEach(function (c) { hitKeys[ckey(c)] = true; });
+      S.turnHit = !!hitKeys[ckey(turnCard)]; S.potAfterFlop = potAfter;
+      if (S.turnHit) {
+        var deck2 = without(deck1, [turnCard]);
+        S.riverCard = choice(deck2); S.handEnded = true; stats.hands++; saveStats(); render(); return;
+      }
+      S.turnOuts = S.flopOuts.filter(function (c) { return ckey(c) !== ckey(turnCard); });
+      if (isPairDraw()) {
+        S.turnTripsOuts = S.flopTripsOuts.filter(function (c) { return ckey(c) !== ckey(turnCard); });
+        S.turnBoardPairOuts = S.flopBoardPairOuts.filter(function (c) { return ckey(c) !== ckey(turnCard); });
+      }
+      render(); return;
+    }
+    var deckR = without(fullDeck(), S.hole.concat(S.board).concat([S.turnCard]));
+    S.riverCard = choice(deckR);
+    var riverHitKeys = {}; S.turnOuts.forEach(function (c) { riverHitKeys[ckey(c)] = true; });
+    S.riverHit = !!riverHitKeys[ckey(S.riverCard)];
+    S.handEnded = true; stats.hands++; saveStats(); render();
+  }
+
+  function advanceToTurn() {
+    S.street = 'turn'; S.pot = S.potAfterFlop; S.bet = makeBet(S.potAfterFlop);
+    S.step = 'outs'; S.outsGuess = null; S.discountGuess = null; S.potOddsGuess = null; S.decision = null;
+    render();
+  }
+
+  function render() { renderStatsRail(); renderTable(); renderDrill(); }
+
+  function renderStatsRail() {
+    var acc = stats.decisions ? Math.round((stats.decisionsCorrect / stats.decisions) * 100) : 0;
+    document.getElementById('statsRail').innerHTML =
+      '<div class="stat"><div class="stat-num">' + stats.hands + '</div><div class="stat-label">Hands</div></div>' +
+      '<div class="stat"><div class="stat-num">' + stats.decisionsCorrect + '/' + stats.decisions + '</div><div class="stat-label">Decisions</div></div>' +
+      '<div class="stat"><div class="stat-num">' + acc + '%</div><div class="stat-label">Accuracy</div></div>' +
+      '<div class="stat"><div class="stat-num">' + stats.streak + '</div><div class="stat-label">Streak</div></div>';
+  }
+
+  function renderTable() {
+    document.getElementById('streetTag').textContent = S.handEnded ? 'Hand complete' : (S.street === 'flop' ? 'Flop · 2 to come' : 'Turn · 1 to come');
+    var modeTag = document.getElementById('modeTag');
+    modeTag.style.display = isPairDraw() ? '' : 'none';
+    var boardHtml = S.board.map(cardHtml).join('');
+    if (S.street === 'flop') {
+      if (S.handEnded && S.riverCard) { boardHtml += cardHtml(S.turnCard) + cardHtml(S.riverCard); }
+      else if (S.turnCard) { boardHtml += cardHtml(S.turnCard) + ghostHtml(); }
+      else { boardHtml += ghostHtml() + ghostHtml(); }
+    } else {
+      boardHtml += cardHtml(S.turnCard);
+      if (S.handEnded && S.riverCard) { boardHtml += cardHtml(S.riverCard); } else { boardHtml += ghostHtml(); }
+    }
+    document.getElementById('boardRow').innerHTML = boardHtml;
+    document.getElementById('holeRow').innerHTML = S.hole.map(cardHtml).join('');
+    document.getElementById('potStrip').innerHTML =
+      '<div class="pot-item"><div class="v">' + fmtMoney(S.pot) + '</div><div class="k">Pot</div></div>' +
+      '<div class="pot-item"><div class="v">' + fmtMoney(S.bet) + '</div><div class="k">To call</div></div>';
+  }
+
+  function renderDrill() {
+    var drill = document.getElementById('drill');
+    var pd = isPairDraw(), html = '';
+    if (S.step === 'outs') { html += drillStepOutsPrompt(); }
+    else {
+      html += drillStepOutsDone();
+      if (pd && S.step === 'outsRevealed') { html += drillStepDiscountPrompt(); }
+      else {
+        if (pd) html += drillStepDiscountDone();
+        var gateStep = pd ? 'discountRevealed' : 'outsRevealed';
+        if (S.step === gateStep) { html += drillStepPotOddsPrompt(); }
+        else {
+          html += drillStepPotOddsDone();
+          if (S.step === 'potoddsRevealed') { html += drillStepDecisionPrompt(); }
+          else { html += drillStepDecisionDone(); }
+        }
+      }
+    }
+    drill.innerHTML = html;
+    wireDrillEvents();
+  }
+
+  function drillStepOutsPrompt() {
+    var pd = isPairDraw();
+    var question = pd ? 'Counting every card that gives you trips or two pair, how many outs do you have?' : 'How many outs do you have?';
+    var hint = pd ? 'This one has weak outs mixed in with strong ones — count all of them first.'
+      : (S.street === 'flop' ? 'Two cards to come — you\'ll multiply by 4.' : 'One card to come — you\'ll multiply by 2.');
+    return '<div class="drill-step"><p class="prompt">' + question + '<span class="formula">' + hint + '</span></p>' +
+      '<div class="answer-row"><input type="number" id="outsInput" min="0" max="20" inputmode="numeric" autofocus aria-label="Your outs count">' +
+      '<span class="suffix">outs</span><button class="primary" id="submitOutsBtn" type="button">Check</button></div></div>';
+  }
+
+  function drillStepOutsDone() {
+    var pd = isPairDraw(), outs = rawOuts(), actual = outs.length;
+    var g = grade(Math.abs(S.outsGuess - actual), 0, 1);
+    var question = pd ? 'Counting every card that gives you trips or two pair, how many outs do you have?' : 'How many outs do you have?';
+    var body = '<div class="drill-step"><p class="prompt">' + question + '</p>' +
+      '<div class="reveal"><span>You said <b>' + S.outsGuess + '</b> · actual is </span><span class="big">' + actual + '</span>' +
+      '<span class="grade ' + g + '">' + gradeLabel(g) + '</span></div>';
+    if (pd) {
+      var trips = tripsOuts(), boardPair = boardPairOuts();
+      body += '<div class="outs-group"><div class="outs-group-label strong">' + trips.length + ' make trips (near-lock)</div><div class="out-cards">' + trips.map(chipHtml).join('') + '</div></div>';
+      body += '<div class="outs-group"><div class="outs-group-label weak">' + boardPair.length + ' only make two pair (often still behind)</div><div class="out-cards">' + boardPair.map(function (c) { return chipHtml(c).replace('class="chip', 'class="chip weak'); }).join('') + '</div></div>';
+    } else {
+      var mult = currentMultiplier(), equity = actual * mult;
+      body += '<div class="out-cards">' + outs.map(chipHtml).join('') + '</div>' +
+        '<div class="reveal"><span class="formula" style="color:var(--ink-dim);font-family:JetBrains Mono,monospace;font-size:0.85rem;">' + actual + ' outs × ' + mult + ' ≈ <b style="color:var(--ink)">' + equity + '%</b> to hit' + (S.street === 'flop' ? ' by the river' : ' on the river') + '</span></div>';
+    }
+    return body + '</div>';
+  }
+
+  function drillStepDiscountPrompt() {
+    return '<div class="drill-step"><p class="prompt">Not all of those outs are worth the same. Once you discount the weak ones, how many would you actually count for the Rule of 2 and 4?' +
+      '<span class="formula">' + (S.street === 'flop' ? 'Two cards to come — you\'ll multiply by 4.' : 'One card to come — you\'ll multiply by 2.') + '</span></p>' +
+      '<div class="answer-row"><input type="number" id="discountInput" min="0" max="20" inputmode="numeric" autofocus aria-label="Your discounted outs count">' +
+      '<span class="suffix">outs</span><button class="primary" id="submitDiscountBtn" type="button">Check</button></div></div>';
+  }
+
+  function drillStepDiscountDone() {
+    var trips = tripsOuts(), boardPair = boardPairOuts(), actual = discountedCount(trips.length, boardPair.length);
+    var g = grade(Math.abs(S.discountGuess - actual), 0, 1), mult = currentMultiplier(), equity = actual * mult;
+    return '<div class="drill-step"><p class="prompt">Not all of those outs are worth the same. Once you discount the weak ones, how many would you actually count?</p>' +
+      '<div class="reveal"><span>You said <b>' + S.discountGuess + '</b> · actual is </span><span class="big">' + actual + '</span><span class="grade ' + g + '">' + gradeLabel(g) + '</span></div>' +
+      '<div class="reveal"><span class="formula" style="color:var(--ink-dim);font-size:0.82rem;line-height:1.5;">' + trips.length + ' full-value + ' + boardPair.length + ' weak outs shrunk to about a third ≈ <b style="color:var(--ink)">' + actual + '</b> effective outs</span></div>' +
+      '<div class="reveal"><span class="formula" style="color:var(--ink-dim);font-family:JetBrains Mono,monospace;font-size:0.85rem;">' + actual + ' outs × ' + mult + ' ≈ <b style="color:var(--ink)">' + equity + '%</b> to hit' + (S.street === 'flop' ? ' by the river' : ' on the river') + '</span></div></div>';
+  }
+
+  function drillStepPotOddsPrompt() {
+    return '<div class="drill-step"><p class="prompt">What equity do you need to call?' +
+      '<span class="formula">' + S.bet + ' ÷ (' + S.pot + ' + ' + S.bet + ') × 100</span></p>' +
+      '<div class="answer-row"><input type="number" id="potOddsInput" min="0" max="100" inputmode="numeric" autofocus aria-label="Equity needed to call, in percent">' +
+      '<span class="suffix">%</span><button class="primary" id="submitPotOddsBtn" type="button">Check</button></div></div>';
+  }
+
+  function drillStepPotOddsDone() {
+    var req = currentReqPct(), g = grade(Math.abs(S.potOddsGuess - req), 1, 4);
+    return '<div class="drill-step"><p class="prompt">What equity do you need to call?</p>' +
+      '<div class="reveal"><span>You said <b>' + S.potOddsGuess + '%</b> · actual is </span><span class="big">' + fmtPct(req) + '</span><span class="grade ' + g + '">' + gradeLabel(g) + '</span></div></div>';
+  }
+
+  function drillStepDecisionPrompt() {
+    var equity = currentEquity(), req = currentReqPct();
+    return '<div class="drill-step"><p class="prompt">' + equity + '% to hit vs. ' + fmtPct(req) + ' needed. Call or fold?</p>' +
+      '<div class="choice-row"><button class="primary call-btn" id="callBtn" type="button">Call</button>' +
+      '<button class="primary fold-btn" id="foldBtn" type="button">Fold</button></div></div>';
+  }
+
+  function drillStepDecisionDone() {
+    var equity = currentEquity(), req = currentReqPct();
+    var verdictClass = S.decisionCorrect ? 'win' : 'loss', title = S.decisionCorrect ? 'Right call' : 'Wrong call';
+    var expl = S.correctChoice === 'either' ? 'Equity and pot odds were basically equal — a coin flip either way.'
+      : (S.correctChoice === 'call'
+          ? '<b>' + equity + '%</b> beats the <b>' + fmtPct(req) + '</b> you needed — calling is the profitable play long-run.'
+          : '<b>' + equity + '%</b> falls short of the <b>' + fmtPct(req) + '</b> you needed — folding saves chips long-run.');
+    var out = '<div class="drill-step"><p class="prompt">' + equity + '% to hit vs. ' + fmtPct(req) + ' needed. Call or fold?</p>' +
+      '<div class="reveal"><span>You chose <b style="text-transform:capitalize">' + S.decision + '</b>.</span></div>' +
+      '<div class="verdict-box ' + verdictClass + '"><div class="verdict-title">' + title + '</div><div class="verdict-detail">' + expl + '</div></div>';
+    if (S.decision === 'fold') {
+      out += '<div class="deal-cta"><button class="primary" id="nextHandBtn" type="button">Deal next hand</button></div>';
+    } else if (S.street === 'flop' && !S.handEnded) {
+      out += '<div class="river-note">Turn card: ' + chipHtml(S.turnCard) + ' — a blank. On to the turn.</div>';
+      out += '<div class="deal-cta"><button class="primary" id="continueBtn" type="button">Continue to the turn</button></div>';
+    } else if (S.handEnded) {
+      if (S.street === 'flop' && S.turnHit) {
+        var hitNote = ' — hand over, your draw already got there on the turn.';
+        if (isPairDraw()) {
+          var wasStrong = S.flopTripsOuts.some(function (c) { return ckey(c) === ckey(S.turnCard); });
+          hitNote = wasStrong ? ' — that\'s the strong out, trips. Hand over, you\'re way ahead.'
+            : ' — that\'s one of the discounted outs, only two pair. Hand over, but you\'re not automatically best here.';
+        }
+        out += '<div class="river-note">River: ' + chipHtml(S.riverCard) + hitNote + '</div>';
+      } else if (S.riverCard) {
+        out += '<div class="river-note">River: ' + chipHtml(S.riverCard) + (S.riverHit ? ' — it hit!' : ' — missed, but that\'s the math working as expected over time.') + '</div>';
+      }
+      out += '<div class="deal-cta"><button class="primary" id="nextHandBtn" type="button">Deal next hand</button></div>';
+    }
+    return out + '</div>';
+  }
+
+  function wireDrillEvents() {
+    var outsBtn = document.getElementById('submitOutsBtn');
+    if (outsBtn) {
+      var doSubmitOuts = function () { var v = parseInt(document.getElementById('outsInput').value, 10); if (!isNaN(v) && v >= 0) submitOuts(v); else document.getElementById('outsInput').focus(); };
+      outsBtn.addEventListener('click', doSubmitOuts);
+      document.getElementById('outsInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') doSubmitOuts(); });
+    }
+    var discBtn = document.getElementById('submitDiscountBtn');
+    if (discBtn) {
+      var doSubmitDiscount = function () { var v = parseInt(document.getElementById('discountInput').value, 10); if (!isNaN(v) && v >= 0) submitDiscount(v); else document.getElementById('discountInput').focus(); };
+      discBtn.addEventListener('click', doSubmitDiscount);
+      document.getElementById('discountInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') doSubmitDiscount(); });
+    }
+    var poBtn = document.getElementById('submitPotOddsBtn');
+    if (poBtn) {
+      var doSubmitPO = function () { var v = parseInt(document.getElementById('potOddsInput').value, 10); if (!isNaN(v) && v >= 0) submitPotOdds(v); else document.getElementById('potOddsInput').focus(); };
+      poBtn.addEventListener('click', doSubmitPO);
+      document.getElementById('potOddsInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') doSubmitPO(); });
+    }
+    var callBtn = document.getElementById('callBtn');
+    if (callBtn) callBtn.addEventListener('click', function () { submitDecision('call'); });
+    var foldBtn = document.getElementById('foldBtn');
+    if (foldBtn) foldBtn.addEventListener('click', function () { submitDecision('fold'); });
+    var contBtn = document.getElementById('continueBtn');
+    if (contBtn) contBtn.addEventListener('click', advanceToTurn);
+    var nextBtn = document.getElementById('nextHandBtn');
+    if (nextBtn) nextBtn.addEventListener('click', function () { newHand(); });
+  }
+
+  var backdrop = document.getElementById('drawerBackdrop');
+  document.getElementById('refBtn').addEventListener('click', function () { backdrop.classList.add('open'); });
+  document.getElementById('drawerClose').addEventListener('click', function () { backdrop.classList.remove('open'); });
+  backdrop.addEventListener('click', function (e) { if (e.target === backdrop) backdrop.classList.remove('open'); });
+  document.getElementById('discountBtn').addEventListener('click', function () { newHand('pairdraw'); });
+
+  newHand();
+})();
+</script>
+</body>
+</html>
