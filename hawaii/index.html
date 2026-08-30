@@ -4,51 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maui, Mom &amp; Me — Picone Projects</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;600&display=swap');
-
     /* ---- Password gate ---- */
     #gate {
       position: fixed; inset: 0; z-index: 999;
-      background: #f0ece4;
+      background: #f7f3ea;
       display: flex; align-items: center; justify-content: center;
       padding: 24px;
     }
-    @media (prefers-color-scheme: dark) {
-      #gate { background: #12160e; }
-    }
-    .gate-box {
-      width: 100%; max-width: 340px; text-align: center;
-    }
+    @media (prefers-color-scheme: dark) { #gate { background: #161d1a; } }
+    .gate-box { width: 100%; max-width: 340px; text-align: center; }
     .gate-box .palm { font-size: 2.8rem; margin-bottom: 16px; }
     .gate-box h2 {
-      font-family: "Fraunces", Georgia, serif; font-weight: 700;
+      font-family: "Fraunces", Georgia, serif; font-weight: 600;
       font-size: 1.6rem; letter-spacing: -.02em; margin: 0 0 6px;
       color: #23302b;
     }
-    @media (prefers-color-scheme: dark) { .gate-box h2 { color: #e8e0d0; } }
+    @media (prefers-color-scheme: dark) { .gate-box h2 { color: #ece7db; } }
     .gate-box p {
       font-family: "IBM Plex Mono", monospace; font-size: 0.75rem;
-      color: #7A6E5C; margin: 0 0 22px; letter-spacing: .04em;
+      color: #4b5a53; margin: 0 0 22px; letter-spacing: .04em;
     }
-    @media (prefers-color-scheme: dark) { .gate-box p { color: #a0967e; } }
+    @media (prefers-color-scheme: dark) { .gate-box p { color: #b7bdb2; } }
     #pwInput {
       width: 100%; padding: 12px 14px;
       font-family: "IBM Plex Mono", monospace; font-size: 1rem;
-      border: 1.5px solid #D9D0C0; border-radius: 10px;
-      background: #fff; color: #23302b;
+      border: 1.5px solid #d9cfba; border-radius: 10px;
+      background: #fffdf8; color: #23302b;
       text-align: center; letter-spacing: .12em;
-      margin-bottom: 10px; outline: none;
-      transition: border-color .15s;
+      margin-bottom: 10px; outline: none; transition: border-color .15s;
     }
     @media (prefers-color-scheme: dark) {
-      #pwInput { background: #1a1e18; border-color: #3a3e38; color: #e8e0d0; }
+      #pwInput { background: #1d2521; border-color: #35413a; color: #ece7db; }
     }
-    #pwInput:focus { border-color: #b89a60; }
-    #pwInput.shake {
-      animation: shake .35s ease;
-      border-color: #b04428;
-    }
+    #pwInput:focus { border-color: #1c6e6a; }
+    #pwInput.shake { animation: shake .35s ease; border-color: #d9673f; }
     @keyframes shake {
       0%,100% { transform: translateX(0); }
       20% { transform: translateX(-8px); }
@@ -58,231 +51,214 @@
     }
     #pwSubmit {
       width: 100%; padding: 12px;
-      font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 0.85rem;
+      font-family: "IBM Plex Mono", monospace; font-weight: 500; font-size: 0.85rem;
       letter-spacing: .1em; text-transform: uppercase;
-      background: #b89a60; color: #fff; border: none;
-      border-radius: 10px; cursor: pointer;
-      transition: background .15s;
+      background: #1c6e6a; color: #fff; border: none;
+      border-radius: 10px; cursor: pointer; transition: background .15s;
     }
-    #pwSubmit:hover { background: #a0845a; }
+    #pwSubmit:hover { background: #123f3d; }
     #pwError {
       font-family: "IBM Plex Mono", monospace; font-size: 0.72rem;
-      color: #b04428; margin-top: 8px; min-height: 18px;
+      color: #d9673f; margin-top: 8px; min-height: 18px;
     }
 
     /* ---- Site nav ---- */
     .site-nav {
       position: sticky; top: 0; z-index: 50;
-      background: rgba(240,236,228,0.92);
+      background: rgba(247,243,234,0.92);
       backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      border-bottom: 1px solid #D9D0C0;
-      padding: 10px 18px;
+      border-bottom: 1px solid #d9cfba; padding: 10px 18px;
     }
     .site-nav a {
       font-family: "IBM Plex Mono", monospace;
       font-size: 0.72rem; letter-spacing: 0.08em;
-      color: #7A6E5C; text-decoration: none;
+      color: #4b5a53; text-decoration: none;
       display: inline-flex; align-items: center; gap: 5px;
       transition: color 0.12s;
     }
     .site-nav a:hover { color: #23302b; }
     @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) .site-nav { background: rgba(18,22,20,0.92); border-bottom-color: #2E3530; }
-      :root:not([data-theme="light"]) .site-nav a { color: #8A8070; }
-      :root:not([data-theme="light"]) .site-nav a:hover { color: #E8E0D0; }
+      .site-nav { background: rgba(22,29,26,0.92); border-bottom-color: #35413a; }
+      .site-nav a { color: #b7bdb2; }
+      .site-nav a:hover { color: #ece7db; }
     }
-    :root[data-theme="dark"] .site-nav { background: rgba(18,22,20,0.92); border-bottom-color: #2E3530; }
-    :root[data-theme="dark"] .site-nav a { color: #8A8070; }
-    :root[data-theme="dark"] .site-nav a:hover { color: #E8E0D0; }
 
     /* ---- App styles ---- */
     :root {
       --ink: #23302b;
-      --muted: #5c6b5c;
-      --faint: #8a9a88;
-      --bg: #f0ece4;
-      --surface: #faf8f4;
-      --line: #ddd8cc;
-      --line-strong: #c8c0b0;
-      --ocean: #2e6fa8;
-      --ocean-light: #e8f0f8;
-      --sand: #b89a60;
-      --sand-light: #f8f0dc;
-      --fern: #3a7a50;
-      --fern-light: #e8f4ec;
-      --lava: #b04428;
-      --lava-light: #f8ece8;
-      --shadow-sm: 0 1px 3px rgba(35,48,43,.07);
-      --shadow: 0 2px 12px rgba(35,48,43,.08);
+      --ink-soft: #4b5a53;
+      --surface: #f7f3ea;
+      --surface-raised: #fffdf8;
+      --line: #d9cfba;
+      --ocean: #1c6e6a;
+      --ocean-deep: #123f3d;
+      --coral: #d9673f;
+      --coral-soft: #f1d9cc;
+      --gold: #b4863a;
+      --seaglass: #b9c9b8;
+      --tag-easy-bg: #dde8dc; --tag-easy-fg: #33553a;
+      --tag-med-bg: #f1e3c4;  --tag-med-fg: #7a5a17;
+      --tag-full-bg: #f1d3c4; --tag-full-fg: #93401a;
     }
     @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        --ink: #e8e0d0;
-        --muted: #a0967e;
-        --faint: #6a6050;
-        --bg: #12160e;
-        --surface: #1a1e18;
-        --line: #2a2e28;
-        --line-strong: #3a3e38;
-        --ocean: #5a9fd0;
-        --ocean-light: #1a2530;
-        --sand: #d0b070;
-        --sand-light: #282010;
-        --fern: #60b878;
-        --fern-light: #142010;
-        --lava: #d07050;
-        --lava-light: #281410;
-        --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
-        --shadow: 0 2px 12px rgba(0,0,0,.4);
+      :root {
+        --ink: #ece7db; --ink-soft: #b7bdb2;
+        --surface: #161d1a; --surface-raised: #1d2521;
+        --line: #35413a; --ocean: #6fc7bf; --ocean-deep: #a8ddd6;
+        --coral: #e79571; --coral-soft: #3a2620; --gold: #d3ac6a;
+        --seaglass: #3d4a43;
+        --tag-easy-bg: #263a2c; --tag-easy-fg: #a9d3af;
+        --tag-med-bg: #3a3320;  --tag-med-fg: #e0c583;
+        --tag-full-bg: #3a281f; --tag-full-fg: #eba181;
       }
-    }
-    :root[data-theme="dark"] {
-      --ink: #e8e0d0;
-      --muted: #a0967e;
-      --faint: #6a6050;
-      --bg: #12160e;
-      --surface: #1a1e18;
-      --line: #2a2e28;
-      --line-strong: #3a3e38;
-      --ocean: #5a9fd0;
-      --ocean-light: #1a2530;
-      --sand: #d0b070;
-      --sand-light: #282010;
-      --fern: #60b878;
-      --fern-light: #142010;
-      --lava: #d07050;
-      --lava-light: #281410;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
-      --shadow: 0 2px 12px rgba(0,0,0,.4);
     }
 
     * { box-sizing: border-box; }
     body {
-      margin: 0; background: var(--bg); color: var(--ink);
-      font-family: "Source Serif 4", Georgia, serif;
-      font-size: 17px; line-height: 1.65;
-      -webkit-text-size-adjust: 100%;
+      margin: 0; background: var(--surface); color: var(--ink);
+      font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+      font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased;
     }
-    .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px 80px; }
-    h1, h2, h3 { font-family: "Fraunces", Georgia, serif; margin: 0; }
-    p { margin: 0; }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
 
-    /* Header */
-    header { padding: 40px 0 30px; border-bottom: 2px solid var(--ink); margin-bottom: 40px; }
-    .kicker {
-      font-family: "IBM Plex Mono", monospace; font-size: 11px;
-      letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
-      margin-bottom: 10px;
+    header.hero { margin-bottom: 3rem; }
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--ocean); margin: 0 0 0.9rem;
     }
     h1 {
-      font-size: clamp(44px, 12vw, 72px); font-weight: 700;
-      line-height: .9; letter-spacing: -.02em; margin-bottom: 14px;
+      font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto;
+      font-weight: 600; font-size: clamp(2.4rem, 6vw, 3.4rem);
+      line-height: 1.04; margin: 0 0 0.6rem; text-wrap: balance; color: var(--ink);
     }
-    h1 em { font-style: italic; color: var(--muted); }
-    .lede {
-      font-size: 17px; color: var(--muted); max-width: 52ch; line-height: 1.6;
-    }
+    .subtitle { font-size: 1.08rem; color: var(--ink-soft); max-width: 46ch; margin: 0 0 1.8rem; }
 
-    /* Facts grid */
     .facts {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 1px; background: var(--line); border: 1px solid var(--line);
-      border-radius: 6px; overflow: hidden; margin: 32px 0;
+      border-radius: 10px; overflow: hidden;
     }
-    .fact {
-      background: var(--surface); padding: 14px 16px;
+    .fact { background: var(--surface-raised); padding: 0.85rem 1rem; }
+    .fact .k {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft);
+      display: block; margin-bottom: 0.3rem;
     }
-    .fact-label {
-      font-family: "IBM Plex Mono", monospace; font-size: 10px;
-      letter-spacing: .12em; text-transform: uppercase; color: var(--faint);
-    }
-    .fact-value { font-family: "Fraunces", serif; font-weight: 600; font-size: 18px; }
+    .fact .v { font-size: 0.92rem; color: var(--ink); }
 
-    /* Day cards */
-    .days { display: flex; flex-direction: column; gap: 3px; }
-    .day-card {
-      background: var(--surface); border: 1px solid var(--line);
-      border-radius: 6px; overflow: hidden;
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--ocean);
+      margin: 3.2rem 0 1rem; display: flex; align-items: center; gap: 0.7rem;
+    }
+    .section-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    .lede { color: var(--ink-soft); font-size: 0.98rem; margin: -0.4rem 0 1.6rem; }
+
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; margin-bottom: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--ink-soft);
+    }
+    .legend span.dot {
+      display: inline-block; width: 0.55em; height: 0.55em;
+      border-radius: 50%; margin-right: 0.45em; vertical-align: middle;
+    }
+    .dot.easy { background: var(--tag-easy-fg); }
+    .dot.med  { background: var(--tag-med-fg); }
+    .dot.full { background: var(--tag-full-fg); }
+
+    .day {
+      position: relative; border: 1px solid var(--line); background: var(--surface-raised);
+      border-radius: 14px; padding: 1.6rem 1.7rem 1.8rem; margin-bottom: 1.3rem;
     }
     .day-head {
-      display: flex; align-items: baseline; gap: 12px;
-      padding: 16px 20px 14px; border-bottom: 1px solid var(--line);
-      cursor: pointer; user-select: none;
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap; margin-bottom: 0.2rem;
     }
-    .day-head::-webkit-details-marker { display: none; }
-    .day-num {
-      font-family: "IBM Plex Mono", monospace; font-size: 11px;
-      letter-spacing: .1em; color: var(--faint); flex-shrink: 0;
-    }
-    .day-title {
-      font-family: "Fraunces", serif; font-weight: 600;
-      font-size: 21px; letter-spacing: -.01em;
-    }
-    .day-date {
-      font-family: "IBM Plex Mono", monospace; font-size: 11px;
-      color: var(--muted); margin-left: auto; flex-shrink: 0;
-    }
-    .day-body { padding: 20px; }
-
-    /* Beats (time blocks) */
-    .beats { display: flex; flex-direction: column; gap: 0; }
-    .beat {
-      display: grid; grid-template-columns: 80px 1fr;
-      gap: 0 16px; padding: 10px 0; border-bottom: 1px solid var(--line);
-    }
-    .beat:last-child { border-bottom: none; }
-    .beat-time {
-      font-family: "IBM Plex Mono", monospace; font-size: 12px;
-      color: var(--faint); padding-top: 2px; line-height: 1.4;
-    }
-    .beat-what { font-size: 16px; line-height: 1.5; }
-    .beat-what strong { font-weight: 600; display: block; }
-    .beat-what span { color: var(--muted); font-size: 14.5px; }
-
-    /* Tags */
+    .day-title-group { display: flex; align-items: baseline; gap: 0.7rem; }
+    .day-num { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 1.9rem; color: var(--ocean-deep); }
+    .day-name { font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 1.25rem; color: var(--ink); }
+    .day-date { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--ink-soft); letter-spacing: 0.03em; }
     .tag {
-      display: inline-block; font-family: "IBM Plex Mono", monospace;
-      font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
-      padding: 2px 8px; border-radius: 100px; margin-top: 4px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; letter-spacing: 0.06em;
+      text-transform: uppercase; padding: 0.28rem 0.6rem; border-radius: 100px;
+      white-space: nowrap; height: fit-content;
     }
-    .tag-ocean { background: var(--ocean-light); color: var(--ocean); }
-    .tag-land  { background: var(--fern-light);  color: var(--fern); }
-    .tag-food  { background: var(--sand-light);  color: var(--sand); }
-    .tag-rest  { background: var(--lava-light);  color: var(--lava); }
+    .tag.easy { background: var(--tag-easy-bg); color: var(--tag-easy-fg); }
+    .tag.med  { background: var(--tag-med-bg);  color: var(--tag-med-fg); }
+    .tag.full { background: var(--tag-full-bg); color: var(--tag-full-fg); }
 
-    /* Checklist */
-    .check-section { margin-top: 48px; }
-    .check-section h2 { font-size: 28px; font-weight: 600; margin-bottom: 16px; }
-    .checklist {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 2px; list-style: none; padding: 0; margin: 0;
-    }
-    .checklist li {
-      display: flex; align-items: flex-start; gap: 10px;
-      background: var(--surface); border: 1px solid var(--line);
-      border-radius: 4px; padding: 10px 14px; font-size: 15px;
-    }
-    .checklist input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; accent-color: var(--fern); }
+    .day-blurb { color: var(--ink-soft); font-size: 0.95rem; margin: 0.6rem 0 1.1rem; max-width: 60ch; }
 
-    /* Skipped */
-    .skipped { margin-top: 40px; }
-    .skipped h2 { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
-    .skipped p { color: var(--muted); font-size: 15px; margin-bottom: 16px; }
-    .skip-list {
-      list-style: none; padding: 0; margin: 0;
-      display: flex; flex-direction: column; gap: 1px;
+    .beats { display: flex; flex-direction: column; gap: 0.85rem; }
+    .beat { display: grid; grid-template-columns: 84px 1fr; gap: 0.9rem; align-items: start; }
+    .beat .when {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+      color: var(--ocean); letter-spacing: 0.02em; padding-top: 0.15rem;
     }
-    .skip-list li {
-      background: var(--surface); border: 1px solid var(--line);
-      border-radius: 4px; padding: 10px 16px;
-      display: flex; align-items: baseline; gap: 10px; font-size: 15px;
+    .beat .what { font-size: 0.94rem; color: var(--ink); }
+    .beat .what b { font-weight: 600; color: var(--ink); }
+    .beat .note { display: block; color: var(--ink-soft); font-size: 0.87rem; margin-top: 0.15rem; }
+    .beat .note.tip { color: var(--ocean-deep); }
+    .beat a {
+      color: var(--ocean); font-weight: 600; text-decoration: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--ocean) 40%, transparent);
     }
-    .skip-reason { color: var(--muted); font-size: 13.5px; font-style: italic; }
+    .beat a:hover { border-bottom-color: var(--ocean); }
 
-    footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13.5px; }
+    .callout {
+      background: var(--coral-soft);
+      border: 1px solid color-mix(in srgb, var(--coral) 35%, var(--line));
+      border-radius: 10px; padding: 1rem 1.15rem; font-size: 0.92rem;
+      color: var(--ink); margin-top: 1rem;
+    }
+    .callout b { color: var(--coral); }
+
+    .checklist { display: flex; flex-direction: column; gap: 0.9rem; }
+    .check-item {
+      display: grid; grid-template-columns: 1.4rem 1fr; gap: 0.75rem;
+      padding: 0.9rem 1rem; background: var(--surface-raised);
+      border: 1px solid var(--line); border-radius: 10px; cursor: pointer;
+      transition: opacity .2s;
+    }
+    .check-item.done { opacity: 0.5; }
+    .mark {
+      width: 1.1rem; height: 1.1rem; border: 1.5px solid var(--ocean);
+      border-radius: 4px; margin-top: 0.15rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .check-item.done .mark { background: var(--ocean); }
+    .check-item.done .mark::after { content: "✓"; color: #fff; font-size: 0.7rem; font-family: sans-serif; }
+    .check-item .title { font-weight: 600; font-size: 0.95rem; color: var(--ink); margin-bottom: 0.2rem; }
+    .check-item .desc { font-size: 0.88rem; color: var(--ink-soft); }
+
+    .options { display: grid; gap: 0.7rem; }
+    .option {
+      display: grid; grid-template-columns: 1fr auto; gap: 0.6rem 1rem;
+      padding: 0.9rem 1.1rem; background: var(--surface-raised);
+      border: 1px solid var(--line); border-radius: 10px; align-items: center;
+    }
+    .option .name { font-weight: 600; font-size: 0.95rem; }
+    .option .why { grid-column: 1 / -1; font-size: 0.87rem; color: var(--ink-soft); }
+    .option .price {
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem;
+      color: var(--ocean); text-align: right; white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
+      color: var(--ink-soft); letter-spacing: 0.02em;
+    }
+
+    @media (max-width: 480px) {
+      .beat { grid-template-columns: 1fr; gap: 0.2rem; }
+      .beat .when { padding-top: 0; }
+    }
   </style>
 </head>
 <body>
+
   <div id="gate">
     <div class="gate-box">
       <div class="palm">🌴</div>
@@ -299,331 +275,178 @@
   </nav>
 
 <div class="wrap">
-<header>
-  <p class="kicker">West Maui &middot; Sept 15&ndash;22, 2026 &middot; Two of us</p>
-  <h1>Maui,<br><em>Mom &amp; Me</em></h1>
-  <p class="lede">Seven nights in Kaanapali. One week of the right amount of nothing planned, plus the things worth getting off the couch for.</p>
-  <div class="facts">
-    <div class="fact"><p class="fact-label">Depart</p><p class="fact-value">Sept 15</p></div>
-    <div class="fact"><p class="fact-label">Return</p><p class="fact-value">Sept 22</p></div>
-    <div class="fact"><p class="fact-label">Nights</p><p class="fact-value">7</p></div>
-    <div class="fact"><p class="fact-label">Base</p><p class="fact-value">Kaanapali</p></div>
-    <div class="fact"><p class="fact-label">Travelers</p><p class="fact-value">2</p></div>
-    <div class="fact"><p class="fact-label">Season</p><p class="fact-value">Shoulder</p></div>
+
+  <header class="hero">
+    <p class="eyebrow">West Maui · Sept 15–22, 2026</p>
+    <h1>Maui, Mom &amp; Me</h1>
+    <p class="subtitle">Eight days, seven nights, built around one big day (Hana), two ocean days, and real time to just sit on the lānai. Nothing back-to-back, no luau, and nothing that's an hours-long trek.</p>
+
+    <div class="facts">
+      <div class="fact"><span class="k">Staying</span><span class="v">Hilton Kaanapali Beach</span></div>
+      <div class="fact"><span class="k">Wheels</span><span class="v">Jeep, already booked</span></div>
+      <div class="fact"><span class="k">Tours</span><span class="v">Costco × Viator, 15% off</span></div>
+      <div class="fact"><span class="k">Pace for mom</span><span class="v">No real limits — just no 6-hr volcano hikes</span></div>
+    </div>
+
+    <div class="callout" style="margin-top:1.1rem;"><b>Flights confirmed:</b> you land at OGG 4:35pm Tue 9/15 (via SFO), and leave OGG 1:05pm Tue 9/22 (via LAX, landing EWR 7:26am Wed 9/23). That's two more days in Maui than the original plan assumed — this version reflects the real dates. The LAX connection home is tight (1h51m on the same airline) — worth checking flight status that afternoon and skipping checked bags if you can.</div>
+  </header>
+
+  <div class="section-label">The shape of the week</div>
+  <div class="legend">
+    <span><span class="dot easy"></span>Easy day</span>
+    <span><span class="dot med"></span>Moderate</span>
+    <span><span class="dot full"></span>Full day out</span>
   </div>
-</header>
+  <p class="lede">One big push (Hana), with the two moderate ocean/town days each followed by a fully open rest day. Nothing harder than "moderate" two days running.</p>
 
-<div class="days">
-
-  <!-- Day 1 -->
-  <div class="day-card">
+  <!-- DAY 1 -->
+  <div class="day">
     <div class="day-head">
-      <span class="day-num">01</span>
-      <span class="day-title">Arrival Day</span>
-      <span class="day-date">Mon Sept 15</span>
+      <div class="day-title-group"><span class="day-num">01</span><span class="day-name">Arrival &amp; Ka'anapali Beach Walk</span></div>
+      <span class="tag easy">Easy</span>
     </div>
-    <div class="day-body">
-      <div class="beats">
-        <div class="beat">
-          <span class="beat-time">Morning</span>
-          <div class="beat-what"><strong>Depart home</strong><span>Get to airport early — inter-island connections can be tight</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Afternoon</span>
-          <div class="beat-what"><strong>Land OGG, pick up car</strong><span>Book car early — September is shoulder season but Maui rentals run short</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Evening</span>
-          <div class="beat-what">
-            <strong>Grocery stop at Safeway Lahaina</strong>
-            <span>Stock breakfast supplies, snacks, water, sunscreen</span>
-            <span class="tag tag-food">food</span>
-          </div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Night</span>
-          <div class="beat-what"><strong>Check in, walk the beach, easy dinner</strong><span>Kaanapali Beach Hotel or Ka'anapali Beach Club — confirm reservation</span></div>
-        </div>
-      </div>
+    <div class="day-date">Tue, Sept 15 · land 4:35pm</div>
+    <p class="day-blurb">You land mid-afternoon — this is a half-day by the time you get to the hotel. Check in, get sand under your feet, and don't plan anything that requires being anywhere on time.</p>
+    <div class="beats">
+      <div class="beat"><span class="when">Aft.</span><div class="what"><b>Check in, then the Beach Walk</b><span class="note">A paved, mostly flat oceanfront path running the length of Kaanapali, right past the hotel — good for stretching your legs without committing to anything.</span></div></div>
+      <div class="beat"><span class="when">Eve.</span><div class="what"><b>Whalers Village</b> for an easy dinner, then watch the cliff-dive torch-lighting ceremony from the beach at sunset (free, nightly, no ticket)</div></div>
     </div>
   </div>
 
-  <!-- Day 2 -->
-  <div class="day-card">
+  <!-- DAY 2 -->
+  <div class="day">
     <div class="day-head">
-      <span class="day-num">02</span>
-      <span class="day-title">Kapalua &amp; the Coastal Trail</span>
-      <span class="day-date">Tue Sept 16</span>
+      <div class="day-title-group"><span class="day-num">02</span><span class="day-name">Recovery Day, Black Rock</span></div>
+      <span class="tag easy">Easy</span>
     </div>
-    <div class="day-body">
-      <div class="beats">
-        <div class="beat">
-          <span class="beat-time">7–9 am</span>
-          <div class="beat-what"><strong>Kapalua Bay</strong><span>Best snorkel in West Maui. Go early before the tour boats; park at the small lot off Kapalua Place</span><span class="tag tag-ocean">ocean</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">9–11 am</span>
-          <div class="beat-what"><strong>Kapalua Coastal Trail</strong><span>2.3 mi bluff walk, Kapalua Bay to D.T. Fleming Beach. Easy, paved, gorgeous. Flip-flop friendly.</span><span class="tag tag-land">land</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">11 am–1 pm</span>
-          <div class="beat-what"><strong>D.T. Fleming Beach</strong><span>Bodysurfing beach — rougher water, no snorkel here, but beautiful for swimming if conditions allow</span><span class="tag tag-ocean">ocean</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Afternoon</span>
-          <div class="beat-what"><strong>Pool + rest</strong><span>September sun is real. Hotel pool until 4 pm.</span><span class="tag tag-rest">rest</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Evening</span>
-          <div class="beat-what"><strong>Dinner at Merriman's Kapalua</strong><span>Book ahead — farm-to-table, ocean views, solid fish</span><span class="tag tag-food">food</span></div>
-        </div>
-      </div>
+    <div class="day-date">Wed, Sept 16</div>
+    <p class="day-blurb">A buffer day between the flight and Hana — you just did roughly 15 hours of travel, no reason to follow it straight into a 10–12 hour driving day. Deliberately nothing planned.</p>
+    <div class="beats">
+      <div class="beat"><span class="when">AM</span><div class="what"><b>Pool or beach, no agenda.</b> Sleep in, shake off the jet lag.</div></div>
+      <div class="beat"><span class="when">Late AM</span><div class="what"><b>Pu'u Keka'a (Black Rock)</b>, a 10-minute walk up the Beach Walk from the Hilton — some of the best shore snorkeling on this coast, easy sandy entry, usually calm and full of turtles and fish. No boat needed.</div></div>
+      <div class="beat"><span class="when">PM</span><div class="what">Nap, lānai, room service. Seriously — leave this open. Also a good evening to download the Shaka Guide tour over the hotel wifi, ready for tomorrow.</div></div>
     </div>
   </div>
 
-  <!-- Day 3 -->
-  <div class="day-card">
+  <!-- DAY 3 -->
+  <div class="day">
     <div class="day-head">
-      <span class="day-num">03</span>
-      <span class="day-title">Snorkel Sail</span>
-      <span class="day-date">Wed Sept 17</span>
+      <div class="day-title-group"><span class="day-num">03</span><span class="day-name">Road to Hana</span></div>
+      <span class="tag full">Full day</span>
     </div>
-    <div class="day-body">
-      <div class="beats">
-        <div class="beat">
-          <span class="beat-time">7–8 am</span>
-          <div class="beat-what"><strong>Board at Lahaina Harbor</strong><span>Pacific Whale Foundation or Trilogy — both depart ~7:30. Book online 2+ weeks ahead.</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">8 am–12 pm</span>
-          <div class="beat-what"><strong>Molokini Crater</strong><span>Half submerged volcano, 40-ft visibility. Whale sightings possible in September.</span><span class="tag tag-ocean">ocean</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">12–1:30 pm</span>
-          <div class="beat-what"><strong>Turtle Town snorkel stop</strong><span>Green sea turtles — almost certain encounter at this second stop</span><span class="tag tag-ocean">ocean</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Afternoon</span>
-          <div class="beat-what"><strong>Lahaina town walk</strong><span>Old Lahaina Courthouse area; check what's rebuilt post-fire. Pay respects, shop lightly.</span><span class="tag tag-land">land</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Evening</span>
-          <div class="beat-what"><strong>Early dinner, early bed</strong><span>Long day on the water</span></div>
-        </div>
-      </div>
+    <div class="day-date">Thu, Sept 17</div>
+    <p class="day-blurb">A weekday, with a full day already behind you to recover from the flight — no reservation, no deadline, no back-to-back with travel day.</p>
+    <div class="callout"><b>Shaka Guide fits right in:</b> the Classic Road to Hana tour already covers Ho'okipa, Ke'anae, 'Ohe'o Gulch/Pipiwai, and Hamoa Beach, and returns via this same Hana Highway rather than the back road — no changes needed to the plan below. Download it over the hotel wifi the night before so it's ready offline — cell service disappears for long stretches past Ke'anae.</div>
+    <div class="beats">
+      <div class="beat"><span class="when">Mile 9</span><div class="what"><b>Ho'okipa Lookout</b> — paved lot right above the beach, sea turtles hauled out on the sand most mornings. Zero walking.</div></div>
+      <div class="beat"><span class="when">Mile 16</span><div class="what"><b>Ke'anae Peninsula</b> — flat half-mile loop past the old church and lava coastline; stop as much or as little as feels good.</div></div>
+      <div class="beat"><span class="when">Hana</span><div class="what"><b>Lunch in Hana town</b> — Hana Ranch Restaurant (open daily, 11am–9pm) is the reliable option; Poke Bob's and Hana Farms food trucks are also open most days.</div></div>
+      <div class="beat"><span class="when">Past Hana</span><div class="what"><b>'Ohe'o Gulch (Seven Sacred Pools)</b> — view the pools from the boardwalk overlook. If you've got energy left, the first stretch of the Pipiwai Trail to Makahiku Falls overlook is about 20–30 minutes round trip on a real path and ends at a genuinely great waterfall view.<span class="note">This is Haleakalā National Park's Kīpahulu district — a $30/vehicle NPS entrance fee applies. Buy online at recreation.gov beforehand, or pay by card at the entrance station — no cash accepted on-site.</span></div></div>
+      <div class="beat"><span class="when">Koki Beach</span><div class="what">Red sand, sea arch, views of 'Alau Island — no reservation, just pull off and walk down. A few minutes past Hana town.</div></div>
+      <div class="beat"><span class="when">Hamoa Beach</span><div class="what">Consistently ranked one of Maui's best beaches — turquoise water, no reservation needed. Good spot to get in the water and unwind before the drive back.</div></div>
+      <div class="beat"><span class="when">Return</span><div class="what">Drive back the way you came (Hana Highway), not the Kahekili "back road" — it's unpaved in stretches and most rental agreements exclude it anyway.</div></div>
     </div>
+    <div class="callout"><b>Reality check:</b> this is a 10–12 hour day with 600+ curves. Pack snacks and motion-sickness remedies, fill the tank in Kahului before you go (no gas past Paia), and don't feel obligated to hit every stop — nothing here has a deadline, so trim as the day goes.</div>
   </div>
 
-  <!-- Day 4 -->
-  <div class="day-card">
+  <!-- DAY 4 -->
+  <div class="day">
     <div class="day-head">
-      <span class="day-num">04</span>
-      <span class="day-title">Road to Hana</span>
-      <span class="day-date">Thu Sept 18</span>
+      <div class="day-title-group"><span class="day-num">04</span><span class="day-name">Snorkel Sail</span></div>
+      <span class="tag med">Moderate</span>
     </div>
-    <div class="day-body">
-      <div class="beats">
-        <div class="beat">
-          <span class="beat-time">6 am</span>
-          <div class="beat-what"><strong>Early depart from Kaanapali</strong><span>Leave by 6 to beat tour buses. Download Gypsy Guide app or Road to Hana audio tour the night before.</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">8–9 am</span>
-          <div class="beat-what"><strong>Twin Falls</strong><span>First major stop, easy 20-min hike. Good warm-up.</span><span class="tag tag-land">land</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">9:30–10:30 am</span>
-          <div class="beat-what"><strong>Waikamoi Ridge Trail</strong><span>Short bamboo forest loop. Cool and quiet.</span><span class="tag tag-land">land</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">11 am</span>
-          <div class="beat-what"><strong>Garden of Eden lookout &amp; Puohokamoa Falls</strong><span>Paid entry ($20/person) but worth it for the falls view without the crowd hike</span><span class="tag tag-land">land</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">12:30 pm</span>
-          <div class="beat-what"><strong>Lunch at Halfway to Hana stand</strong><span>Banana bread. Non-negotiable.</span><span class="tag tag-food">food</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">2–3 pm</span>
-          <div class="beat-what"><strong>Wai'anapanapa State Park</strong><span>Black sand beach. Reserve day-use entry in advance on the Hawaii DLNR site ($10/person).</span><span class="tag tag-ocean">ocean</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">3:30–4 pm</span>
-          <div class="beat-what"><strong>Hana town</strong><span>Quick stretch — Hasegawa General Store, fudge at Hana Farms if still open</span><span class="tag tag-food">food</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">4 pm–dark</span>
-          <div class="beat-what"><strong>Drive back</strong><span>Same road, less traffic. Allow 2.5 hrs. Do not attempt Piilani Hwy at night — poorly marked.</span></div>
-        </div>
-      </div>
+    <div class="day-date">Fri, Sept 18</div>
+    <p class="day-blurb">The one "must-do" boat trip — someone else does the work today. The Kaanapali options win on convenience — no early drive, just a short walk from the hotel.</p>
+    <div class="beats">
+      <div class="beat"><span class="when">Top pick</span><div class="what"><b>Teralani Premier Snorkel Sail</b> — departs the Aqualani kiosk at the Outrigger Kaanapali, an easy walk up the Beach Walk from the Hilton. $179.95/adult, includes breakfast, BBQ lunch, and two drinks each on the return sail. Book direct at <a href="https://teralani.com/maui-snorkel-trips/premier-snorkel-sail/" target="_blank" rel="noopener">teralani.com →</a></div></div>
+      <div class="beat"><span class="when">Close second</span><div class="what"><b>Trilogy Discover Ka'anapali</b> — departs the Sheraton's beach lawn, also an easy walk. $214/adult, similar format, Trilogy's reputation is excellent. Book direct at <a href="https://sailtrilogy.com/tour/discover-kaanapali" target="_blank" rel="noopener">sailtrilogy.com →</a></div></div>
+      <div class="beat"><span class="when">If you'd rather use the discount</span><div class="what">Pride of Maui, Sail Maui, or Maui Classic Charters all run from Ma'alaea Harbor (~45 min drive) and are bookable via Costco Travel → Viator for 15% off. Similar trip, more travel time.</div></div>
+      <div class="beat"><span class="when">PM</span><div class="what">These trips usually return by early afternoon — rest of the day is open for the pool.</div></div>
     </div>
   </div>
 
-  <!-- Day 5 -->
-  <div class="day-card">
+  <!-- DAY 5 -->
+  <div class="day">
     <div class="day-head">
-      <span class="day-num">05</span>
-      <span class="day-title">Rest Day</span>
-      <span class="day-date">Fri Sept 19</span>
+      <div class="day-title-group"><span class="day-num">05</span><span class="day-name">Open Day, Poolside</span></div>
+      <span class="tag easy">Easy</span>
     </div>
-    <div class="day-body">
-      <div class="beats">
-        <div class="beat">
-          <span class="beat-time">Morning</span>
-          <div class="beat-what"><strong>Sleep in, coffee on the lanai</strong><span>You earned it after Hana.</span><span class="tag tag-rest">rest</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Mid-morning</span>
-          <div class="beat-what"><strong>Kaanapali Beach walk north to south</strong><span>3 miles round-trip on the beach path. Whaler's Village at the midpoint for an açaí bowl.</span><span class="tag tag-land">land</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Afternoon</span>
-          <div class="beat-what"><strong>Book a massage or just the pool</strong><span>The Westin Kaanapali has a good spa if you want a treat</span><span class="tag tag-rest">rest</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Sunset</span>
-          <div class="beat-what"><strong>Sunset from Black Rock</strong><span>Pu'u Keka'a cliff dive happens at sunset — walk over to watch. Free, spectacular.</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Evening</span>
-          <div class="beat-what"><strong>Dinner at Leilani's on the Beach</strong><span>Solid fish tacos, right on the sand, no-fuss atmosphere</span><span class="tag tag-food">food</span></div>
-        </div>
-      </div>
+    <div class="day-date">Sat, Sept 19</div>
+    <p class="day-blurb">Nothing booked. This is one of the two "extra" days from the real flight dates — use it however the week is actually going. Staying at the pool is a fully correct answer.</p>
+    <div class="beats">
+      <div class="beat"><span class="when">Option</span><div class="what"><b>D.T. Fleming Beach Park</b>, near Kapalua (~20 min) — a change of scenery from Kaanapali, consistently ranked one of the best beaches in the country, gentler and less crowded.</div></div>
+      <div class="beat"><span class="when">Option</span><div class="what"><b>Whalers Village Museum</b>, right at the resort — free, air-conditioned, a quick whaling-history stop without leaving Kaanapali.</div></div>
+      <div class="beat"><span class="when">Option</span><div class="what">A spa treatment at the Hilton, or a redo of Black Rock, or genuinely just sitting still — all correct answers for a day with nothing booked.</div></div>
     </div>
   </div>
 
-  <!-- Day 6 -->
-  <div class="day-card">
+  <!-- DAY 6 -->
+  <div class="day">
     <div class="day-head">
-      <span class="day-num">06</span>
-      <span class="day-title">Haleakal&#257; &amp; Upcountry</span>
-      <span class="day-date">Sat Sept 20</span>
+      <div class="day-title-group"><span class="day-num">06</span><span class="day-name">Kapalua Bay &amp; Lahaina</span></div>
+      <span class="tag med">Moderate</span>
     </div>
-    <div class="day-body">
-      <div class="beats">
-        <div class="beat">
-          <span class="beat-time">3:30 am</span>
-          <div class="beat-what"><strong>Depart for Haleakalā Summit</strong><span>Reserve sunrise entry permit on recreation.gov — required and sells out weeks ahead. Bring real layers: it'll be 35–45°F at 10,000 ft.</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">5:45 am</span>
-          <div class="beat-what"><strong>Sunrise at the summit</strong><span>Above the clouds if you're lucky. One of the best things you can do on Maui.</span><span class="tag tag-land">land</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">7:30–9 am</span>
-          <div class="beat-what"><strong>Short summit trail walk</strong><span>Halemau'u overlook or Pa Ka'oao — 30–45 min, still above cloud line. Wind, moonscape, silence.</span><span class="tag tag-land">land</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">10–11 am</span>
-          <div class="beat-what"><strong>Upcountry: Kula</strong><span>Drive down through farm country. Stop at Kula Lodge for late breakfast/brunch — great eggs Benedict.</span><span class="tag tag-food">food</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">11:30 am</span>
-          <div class="beat-what"><strong>Ali'i Kula Lavender Farm</strong><span>Short walk, lavender everything, views down to the coast. Good gift stop.</span><span class="tag tag-land">land</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Afternoon</span>
-          <div class="beat-what"><strong>Back to resort — nap mandatory</strong><span>4 am start catches up with you</span><span class="tag tag-rest">rest</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Evening</span>
-          <div class="beat-what"><strong>Low-key dinner in Kaanapali</strong><span>Maui Brewing Co. in Kaanapali or Japengo at the Hyatt</span><span class="tag tag-food">food</span></div>
-        </div>
-      </div>
+    <div class="day-date">Sun, Sept 20</div>
+    <p class="day-blurb">A calm morning swim, then an afternoon in a town that's genuinely worth the visit — Front Street reopened to the public August 1, 2026, after the wildfire. Dinner reservation locked in for the evening.</p>
+    <div class="beats">
+      <div class="beat"><span class="when">AM</span><div class="what"><b>Kapalua Bay</b> — a sheltered, crescent-shaped bay about 20 min north, widely considered the calmest, easiest snorkeling on this coast. Gentle sandy entry, protected from surf and wind most mornings.</div></div>
+      <div class="beat"><span class="when">PM</span><div class="what"><b>Lahaina</b> — the rebuilt stretch of Front Street: shops and the harbor. Note the historic core and the Banyan Tree courtyard are still an active rebuild site and roped off — plan to observe respectfully. Keep this loose enough to be at the restaurant by 5:30.</div></div>
+      <div class="beat"><span class="when">5:30pm</span><div class="what"><b>Dinner at Mala Ocean Tavern</b> — reservation confirmed. Oceanfront, and sunset on Sept 20 is around 6:25pm, so you're likely to catch it right from the table.</div></div>
     </div>
   </div>
 
-  <!-- Day 7 -->
-  <div class="day-card">
+  <!-- DAY 7 -->
+  <div class="day">
     <div class="day-head">
-      <span class="day-num">07</span>
-      <span class="day-title">Honolua Bay &amp; Last Full Day</span>
-      <span class="day-date">Sun Sept 21</span>
+      <div class="day-title-group"><span class="day-num">07</span><span class="day-name">Open Day, Last Full Day</span></div>
+      <span class="tag easy">Easy</span>
     </div>
-    <div class="day-body">
-      <div class="beats">
-        <div class="beat">
-          <span class="beat-time">7–9 am</span>
-          <div class="beat-what"><strong>Honolua Bay</strong><span>Best kept snorkel spot on the island. Park along the road, walk the trail down. No facilities. Bring your own water.</span><span class="tag tag-ocean">ocean</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">10–11 am</span>
-          <div class="beat-what"><strong>Nakalele Blowhole</strong><span>20-min hike to a dramatic coastal blowhole. Stay back from the edge — it's powerful.</span><span class="tag tag-land">land</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Noon</span>
-          <div class="beat-what"><strong>Lunch at Leoda's Kitchen &amp; Pie Shop</strong><span>In Olowalu on the way back — banana cream pie is the whole point</span><span class="tag tag-food">food</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Afternoon</span>
-          <div class="beat-what"><strong>Last swim, pack up</strong><span>Return any gear rentals. Do one final Kaanapali Beach swim.</span><span class="tag tag-ocean">ocean</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Evening</span>
-          <div class="beat-what"><strong>Nice dinner out</strong><span>Last night — Mama's Fish House in Paia if you can get a reservation (book very early). Otherwise Star Noodle in Lahaina.</span><span class="tag tag-food">food</span></div>
-        </div>
-      </div>
+    <div class="day-date">Mon, Sept 21</div>
+    <p class="day-blurb">The second "extra" day, and your last full one — nothing booked on purpose. A couple of low-key options, since it happens to be a Monday.</p>
+    <div class="beats">
+      <div class="beat"><span class="when">Morning option</span><div class="what"><b>Farmers Market of Maui – Honokowai</b>, 7–11am, a few minutes from the Hilton — local fruit, flowers, and snacks, open Mon/Wed/Fri only, so today's one of the few chances.</div></div>
+      <div class="beat"><span class="when">Option</span><div class="what">Maui Ocean Center if you'd rather do it with time to spare than rushed on travel day — no advance ticket required.</div></div>
+      <div class="beat"><span class="when">Option</span><div class="what">Or just another slow beach day — it's your last full one, no obligation to fill it.</div></div>
     </div>
   </div>
 
-  <!-- Day 8: Departure -->
-  <div class="day-card">
+  <!-- DAY 8 -->
+  <div class="day">
     <div class="day-head">
-      <span class="day-num">08</span>
-      <span class="day-title">Departure</span>
-      <span class="day-date">Mon Sept 22</span>
+      <div class="day-title-group"><span class="day-num">08</span><span class="day-name">Last Morning, Departure</span></div>
+      <span class="tag easy">Easy</span>
     </div>
-    <div class="day-body">
-      <div class="beats">
-        <div class="beat">
-          <span class="beat-time">Morning</span>
-          <div class="beat-what"><strong>Check out, coffee, airport</strong><span>OGG requires 90 min before departure. Return car with a full tank or get hit with the premium.</span></div>
-        </div>
-        <div class="beat">
-          <span class="beat-time">Flight</span>
-          <div class="beat-what"><strong>Head home with a tan and no regrets</strong><span></span></div>
-        </div>
-      </div>
+    <div class="day-date">Tue, Sept 22 · depart 1:05pm</div>
+    <p class="day-blurb">A short morning, not a full day — plan to leave the hotel by ~11am for the 1:05pm OGG flight.</p>
+    <div class="beats">
+      <div class="beat"><span class="when">AM</span><div class="what">Final swim or coffee on the beach, pack, head to the airport. If you'd rather do the <b>Maui Ocean Center</b> (Ma'alaea, on the way to the airport) as a last stop, Day 7 is the better day for it — this morning is tight.</div></div>
     </div>
   </div>
 
-</div><!-- /days -->
+  <div class="section-label">Book ahead — full audit</div>
+  <p class="lede">Went through every day looking for anything with a reservation, deadline, or fee. Tap any item to mark it done.</p>
+  <div class="checklist" id="checklist">
+    <div class="check-item" data-key="c1"><div class="mark"></div><div><div class="title">① Book now — Snorkel sail, Fri Sept 18</div><div class="desc"><b>Teralani Premier Snorkel Sail</b> (teralani.com, $179.95/adult) or <b>Trilogy Discover Ka'anapali</b> (sailtrilogy.com, $214/adult) — both are reservation-only, no walk-ups, and this is the one thing on the trip with real sellout risk. Book this first.</div></div></div>
+    <div class="check-item" data-key="c2"><div class="mark"></div><div><div class="title">② Worth booking soon — 'Ohe'o Gulch / Kīpahulu entrance fee, Thu Sept 17</div><div class="desc">Not a timed reservation, but a required $30/vehicle NPS fee. Buy online at recreation.gov ahead of time, or pay by card at the entrance station — no cash accepted on-site.</div></div></div>
+    <div class="check-item" data-key="c3"><div class="mark"></div><div><div class="title">③ Confirmed — Mala Ocean Tavern, Sun Sept 20, 5:30pm</div><div class="desc">Reservation locked in. Oceanfront, reopened post-wildfire, sunset around 6:25pm that evening.</div></div></div>
+    <div class="check-item" data-key="c4"><div class="mark"></div><div><div class="title">④ Not needed — Lahaina sunset sail</div><div class="desc">Dropped now that Mala Ocean Tavern covers the "one special evening" oceanfront moment. No need to double up.</div></div></div>
+    <div class="check-item" data-key="c5"><div class="mark"></div><div><div class="title">⑤ Day-before — Download Shaka Guide, night of Sept 16</div><div class="desc">$24.99 one-time, download over the hotel wifi so it's offline before you lose cell service past Ke'anae the next morning.</div></div></div>
+    <div class="check-item" data-key="c6"><div class="mark"></div><div><div class="title">⑥ Day-of — Gas up in Kahului, morning of Sept 17</div><div class="desc">No gas stations again until Hana town.</div></div></div>
+    <div class="check-item" data-key="c7"><div class="mark"></div><div><div class="title">Confirmed no action needed</div><div class="desc">Wai'ānapanapa (dropped), Kapalua Bay, Black Rock, Ho'okipa, Ke'anae, Koki Beach, Hamoa Beach, Kaanapali Beach Walk, and the nightly torch-lighting/cliff-diving ceremony are all free, walk-up, no reservation. Snorkel gear rental (Boss Frog's) is walk-in too.</div></div></div>
+  </div>
 
-<!-- Checklist -->
-<div class="check-section">
-  <h2>Book before you go</h2>
-  <ul class="checklist" id="checklist">
-    <li><input type="checkbox" data-key="c1"> Flights OGG both ways</li>
-    <li><input type="checkbox" data-key="c2"> Rental car</li>
-    <li><input type="checkbox" data-key="c3"> Hotel (7 nights Kaanapali)</li>
-    <li><input type="checkbox" data-key="c4"> Snorkel sail — Molokini</li>
-    <li><input type="checkbox" data-key="c5"> Haleakalā sunrise permit (recreation.gov)</li>
-    <li><input type="checkbox" data-key="c6"> Wai'anapanapa reservation (Hawaii DLNR)</li>
-    <li><input type="checkbox" data-key="c7"> Mama's Fish House (or Star Noodle)</li>
-    <li><input type="checkbox" data-key="c8"> Merriman's Kapalua</li>
-    <li><input type="checkbox" data-key="c9"> Download Gypsy Guide (Hana)</li>
-    <li><input type="checkbox" data-key="c10"> Snorkel gear rental or purchase</li>
-    <li><input type="checkbox" data-key="c11"> SPF 50+ (reef safe)</li>
-    <li><input type="checkbox" data-key="c12"> Warm layer for Haleakalā</li>
-  </ul>
-</div>
+  <div class="section-label">Skipped on purpose</div>
+  <p class="lede">Cut for a reason, not by accident.</p>
+  <div class="options">
+    <div class="option"><span class="name">Wai'ānapanapa State Park</span><span class="price">—</span><span class="why">Its timed-entry reservation only had a 10:00–12:30pm slot with a 10:30am parking cutoff — real drive time from Kaanapali runs ~3h40m nonstop, leaving almost no margin. Swapped for Koki and Hamoa Beach, both reservation-free.</span></div>
+    <div class="option"><span class="name">Luau (any of them)</span><span class="price">—</span><span class="why">You said no — noted and left out entirely.</span></div>
+    <div class="option"><span class="name">Whale watching</span><span class="price">—</span><span class="why">Humpback season runs roughly December–April; September is well outside it.</span></div>
+    <div class="option"><span class="name">Haleakalā sunrise</span><span class="price">—</span><span class="why">3am wake-up, timed reservation, 40°F summit, two-hour drive each way — the opposite of the pace you want. Skip it guilt-free.</span></div>
+    <div class="option"><span class="name">Pipiwai Trail to Waimoku Falls</span><span class="price">—</span><span class="why">The full trail is a genuine 4-mile round trip — too long to bolt onto an already-full Hana day. The short first stretch to Makahiku Falls is included on Day 3 instead.</span></div>
+  </div>
 
-<!-- Skipped -->
-<div class="skipped">
-  <h2>Left on the table</h2>
-  <p>Things we looked at and decided against for this trip.</p>
-  <ul class="skip-list">
-    <li>Road to Hana overnight stay <span class="skip-reason">adds a full day of driving to get back; not worth it for 7 nights</span></li>
-    <li>Helicopter tour <span class="skip-reason">expensive and depends on weather; better to put money into the snorkel sail</span></li>
-    <li>Surfing lessons <span class="skip-reason">September conditions in Kaanapali can be flat — not the best window</span></li>
-    <li>Iao Valley State Park <span class="skip-reason">beautiful but the hike is short and near Wailuku — out of the way for a Kaanapali base</span></li>
-    <li>Whale watching <span class="skip-reason">peak season is December–April; September you might see them on the snorkel sail, but don't book a dedicated tour</span></li>
-  </ul>
-</div>
+  <footer>Updated against your confirmed United flights (EWR–SFO–OGG out, OGG–LAX–EWR back) — Sept 15–22, 2026.</footer>
 
-<footer>
-  <p>Built with Claude &middot; piconeprojects.com &middot; Trip: Sept 15&ndash;22, 2026</p>
-</footer>
 </div>
 
 <script>
@@ -634,12 +457,9 @@
   function unlock() { try { localStorage.setItem(GATE_KEY, '1'); } catch(e) {} gate.style.display = 'none'; }
   try { if (localStorage.getItem(GATE_KEY) === '1') { unlock(); } } catch(e) {}
   function attempt() {
-    var val = document.getElementById('pwInput').value;
-    if (val === CORRECT) { unlock(); return; }
+    if (document.getElementById('pwInput').value === CORRECT) { unlock(); return; }
     var inp = document.getElementById('pwInput');
-    inp.classList.remove('shake');
-    void inp.offsetWidth;
-    inp.classList.add('shake');
+    inp.classList.remove('shake'); void inp.offsetWidth; inp.classList.add('shake');
     document.getElementById('pwError').textContent = 'Incorrect password.';
     inp.value = '';
     setTimeout(function () { inp.classList.remove('shake'); }, 400);
@@ -648,14 +468,20 @@
   document.getElementById('pwInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') attempt(); });
 })();
 
-const KEY = "hawaii-checklist-v1";
-let state = {};
-try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e) {}
-document.querySelectorAll("#checklist input[type=checkbox]").forEach(cb => {
-  const k = cb.dataset.key;
-  if (state[k]) cb.checked = true;
-  cb.addEventListener("change", () => { state[k] = cb.checked; try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} });
-});
+(function () {
+  var KEY = 'hawaii-checklist-v2';
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) {}
+  document.querySelectorAll('#checklist .check-item').forEach(function(item) {
+    var k = item.dataset.key;
+    if (state[k]) item.classList.add('done');
+    item.addEventListener('click', function() {
+      item.classList.toggle('done');
+      state[k] = item.classList.contains('done');
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+    });
+  });
+})();
 </script>
 </body>
 </html>
