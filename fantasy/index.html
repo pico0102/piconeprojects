@@ -152,7 +152,7 @@
         <span class="text-xl flex-shrink-0 mt-0.5">👤</span>`;
     } else {
       const inner = isLoading
-        ? `<div class="dot-flashing"><span></span><span></span><span></span></div>`
+        ? `<div class="flex flex-col items-start gap-1"><span class="text-xs text-orange-500 font-semibold tracking-wide uppercase">Consulting the GM...</span><div class="dot-flashing mt-1"><span></span><span></span><span></span></div></div>`
         : `<div class="prose-answer text-sm text-gray-800">${html}</div>`;
       wrap.innerHTML = `
         <span class="text-xl flex-shrink-0 mt-0.5">🤖</span>
