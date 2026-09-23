@@ -150,7 +150,7 @@
     chatLog.scrollTo({ top: chatLog.scrollHeight, behavior: 'smooth' });
   }
 
-  function appendBubble(role, html, isLoading = false) {
+  function appendBubble(role, html, isLoading = false, extraData = null) {
     const wrap = document.createElement('div');
     wrap.className = 'flex gap-2 items-start';
 
@@ -161,12 +161,46 @@
         </div>
         <span class="text-xl flex-shrink-0 mt-0.5">👤</span>`;
     } else {
+      let footerHtml = '';
+      if (!isLoading && extraData && extraData.latency_ms !== undefined) {
+        const latencySec = (extraData.latency_ms / 1000).toFixed(1);
+        let pillsHtml = '';
+        let detailsHtml = '';
+        if (extraData.data_sources) {
+           const sources = Object.entries(extraData.data_sources);
+           if (sources.length > 0) {
+             const pills = sources.map(([key, val]) => {
+                const isOk = val.status === 'ok';
+                const icon = isOk ? '🟢' : '🔴';
+                const colorClass = isOk ? 'text-green-600' : 'text-red-500';
+                const name = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                return `<span class="${colorClass}">${icon} ${name}</span>`;
+             }).join('  ');
+             pillsHtml = ` | <span class="cursor-pointer hover:underline" onclick="this.parentElement.nextElementSibling.classList.toggle('hidden')">${pills}</span>`;
+             
+             const detailsRows = sources.map(([key, val]) => {
+                const name = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                return `<div><strong>${name}:</strong> ${val.status === 'ok' ? val.detail : val.error}</div>`;
+             }).join('');
+             detailsHtml = `<div class="hidden mt-2 p-2 bg-gray-100 rounded text-xs text-gray-600">${detailsRows}</div>`;
+           }
+        }
+        footerHtml = `<div class="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-400">⚡ ${latencySec}s ${pillsHtml}</div>${detailsHtml}`;
+      }
+
       const inner = isLoading
-        ? `<div class="flex flex-col items-start gap-1"><span class="text-xs text-orange-500 font-semibold tracking-wide uppercase">Consulting the GM...</span><div class="dot-flashing mt-1"><span></span><span></span><span></span></div></div>`
-        : `<div class="prose-answer text-sm text-gray-800">${html}</div>`;
+        ? `<div class="flex flex-col items-start gap-1">
+             <div class="flex items-center gap-2">
+               <span id="loading-text" class="text-xs text-orange-500 font-semibold tracking-wide uppercase">Consulting the GM...</span>
+               <button id="retry-btn" class="hidden text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded border border-orange-200 hover:bg-orange-200 transition-colors" onclick="submitQuery(true)">Retry</button>
+             </div>
+             <div class="dot-flashing mt-1"><span></span><span></span><span></span></div>
+             <a href="#" id="cancel-link" class="text-[10px] text-gray-400 hover:text-gray-600 underline mt-1" onclick="cancelRequest(event)">Cancel</a>
+           </div>`
+        : `<div class="prose-answer text-sm text-gray-800">${html}</div>${footerHtml}`;
       wrap.innerHTML = `
         <span class="text-xl flex-shrink-0 mt-0.5">🤖</span>
-        <div id="${isLoading ? 'loading-bubble' : ''}" class="bg-white border border-orange-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-prose min-w-[60px]">
+        <div id="${isLoading ? 'loading-bubble' : ''}" class="bg-white border border-orange-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-prose min-w-[60px] w-full">
           ${inner}
         </div>`;
     }
@@ -216,34 +250,72 @@
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  async function submitQuery() {
-    const q = userInput.value.trim();
+  let activeController = null;
+  let timer30 = null;
+  let timer60 = null;
+  let currentQuery = "";
+
+  function cancelRequest(e) {
+    if (e) e.preventDefault();
+    if (activeController) {
+      activeController.abort();
+      activeController = null;
+    }
+    clearTimeout(timer30); clearTimeout(timer60);
+    const loadingBubble = document.getElementById('loading-bubble');
+    if (loadingBubble) {
+      loadingBubble.closest('.flex').remove();
+      appendBubble('bot', `<p class="text-gray-500 text-sm italic">Request cancelled</p>`);
+    }
+    sendBtn.disabled = false;
+    sendBtn.classList.remove('opacity-50');
+  }
+
+  async function submitQuery(isRetry = false) {
+    const q = isRetry === true ? currentQuery : userInput.value.trim();
     if (!q) return;
 
-    // Reset input
-    userInput.value = '';
-    userInput.style.height = 'auto';
+    if (isRetry !== true) {
+      currentQuery = q;
+      userInput.value = '';
+      userInput.style.height = 'auto';
+      appendBubble('user', q);
+    }
 
-    // Disable while loading
     sendBtn.disabled = true;
     sendBtn.classList.add('opacity-50');
 
-    // Show user message
-    appendBubble('user', q);
+    const oldLoading = document.getElementById('loading-bubble');
+    if (oldLoading) oldLoading.closest('.flex').remove();
 
-    // Show loading indicator
     appendBubble('bot', '', true);
+
+    if (activeController) activeController.abort();
+    activeController = new AbortController();
+
+    clearTimeout(timer30); clearTimeout(timer60);
+
+    timer30 = setTimeout(() => {
+      const lt = document.getElementById('loading-text');
+      if (lt) lt.innerText = 'Taking longer than usual...';
+    }, 30000);
+
+    timer60 = setTimeout(() => {
+      const rb = document.getElementById('retry-btn');
+      if (rb) rb.classList.remove('hidden');
+    }, 60000);
 
     try {
       const resp = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: q, league_context: currentLeagueContext }),
+        signal: activeController.signal
       });
 
-      // Remove loading bubble
       const loadingBubble = document.getElementById('loading-bubble');
       if (loadingBubble) loadingBubble.closest('.flex').remove();
+      clearTimeout(timer30); clearTimeout(timer60);
 
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({ detail: 'Server error' }));
@@ -251,17 +323,21 @@
       } else {
         const data = await resp.json();
         const renderedMd = marked.parse(data.answer || '_(empty response)_');
-        appendBubble('bot', renderedMd);
+        appendBubble('bot', renderedMd, false, data);
       }
     } catch (err) {
+      if (err.name === 'AbortError') return;
       const loadingBubble = document.getElementById('loading-bubble');
       if (loadingBubble) loadingBubble.closest('.flex').remove();
+      clearTimeout(timer30); clearTimeout(timer60);
       appendBubble('bot', `<p class="text-red-600 text-sm">⚠️ Network error: ${escapeHtml(String(err))}</p>`);
     } finally {
-      sendBtn.disabled = false;
-      sendBtn.classList.remove('opacity-50');
-      userInput.focus();
-      scrollBottom();
+      if (!activeController || !activeController.signal.aborted) {
+        sendBtn.disabled = false;
+        sendBtn.classList.remove('opacity-50');
+        userInput.focus();
+        scrollBottom();
+      }
     }
   }
 
