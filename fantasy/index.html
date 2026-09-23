@@ -295,42 +295,12 @@
     activeController = new AbortController();
 
     clearTimeout(timer30); clearTimeout(timer60); clearInterval(loadingInterval);
-
-    const loadingTasks = currentLeagueContext === 'survivor' 
-      ? [
-          "Syncing survivor pool state...",
-          "Fetching latest Vegas odds...",
-          "Analyzing public pick trends...",
-          "Evaluating future week value...",
-          "Calculating win probabilities...",
-          "Formulating survivor pick...",
-          "Finalizing recommendation..."
-        ]
-      : [
-          "Fetching live Sleeper state...",
-          "Syncing league rosters...",
-          "Analyzing matchup history...",
-          "Scanning trending waiver targets...",
-          "Blending actual points with projections...",
-          "Running lineup optimization...",
-          "Evaluating trade deltas...",
-          "Reviewing injury reports...",
-          "Formulating GM recommendation...",
-          "Finalizing response..."
-        ];
-    let taskIndex = 0;
-
-    loadingInterval = setInterval(() => {
-      const lt = document.getElementById('loading-text');
-      if (lt) {
-        lt.innerText = loadingTasks[taskIndex % loadingTasks.length];
-        taskIndex++;
-      }
-    }, 1200);
+    const lt = document.getElementById('loading-text');
+    if (lt) lt.innerText = "Connecting...";
 
     timer30 = setTimeout(() => {
-      const lt = document.getElementById('loading-text');
-      if (lt) lt.innerText = 'Taking longer than usual...';
+      const elt = document.getElementById('loading-text');
+      if (elt) elt.innerText = 'Taking longer than usual...';
     }, 30000);
 
     timer60 = setTimeout(() => {
@@ -339,31 +309,68 @@
     }, 60000);
 
     try {
-      const resp = await fetch(`${API_BASE}/api/chat`, {
+      const resp = await fetch(`${API_BASE}/api/chat_stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: q, league_context: currentLeagueContext }),
         signal: activeController.signal
       });
 
-      const loadingBubble = document.getElementById('loading-bubble');
-      if (loadingBubble) loadingBubble.closest('.flex').remove();
-      clearTimeout(timer30); clearTimeout(timer60); clearInterval(loadingInterval);
-
       if (!resp.ok) {
+        clearTimeout(timer30); clearTimeout(timer60);
+        const errBubble = document.getElementById('loading-bubble');
+        if (errBubble) errBubble.closest('.flex').remove();
+        
         const err = await resp.json().catch(() => ({ detail: 'Server error' }));
         appendBubble('bot', `<p class="text-red-600 text-sm">⚠️ ${escapeHtml(err.detail || 'Unknown error')}</p>`);
-      } else {
-        const data = await resp.json();
-        const renderedMd = marked.parse(data.answer || '_(empty response)_');
-        appendBubble('bot', renderedMd, false, data);
+        return;
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let finalData = null;
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          const chunk = decoder.decode(value, {stream: true});
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.substring(6));
+                if (data.status) {
+                  const elt = document.getElementById('loading-text');
+                  if (elt) elt.innerText = data.status;
+                }
+                if (data.error) {
+                  throw new Error(data.error);
+                }
+                if (data.answer) {
+                  finalData = data;
+                }
+              } catch(e) {}
+            }
+          }
+        }
+      }
+      
+      const loadingBubble = document.getElementById('loading-bubble');
+      if (loadingBubble) loadingBubble.closest('.flex').remove();
+      clearTimeout(timer30); clearTimeout(timer60);
+
+      if (finalData) {
+        const renderedMd = marked.parse(finalData.answer || '_(empty response)_');
+        appendBubble('bot', renderedMd, false, finalData);
       }
     } catch (err) {
       if (err.name === 'AbortError') return;
       const loadingBubble = document.getElementById('loading-bubble');
       if (loadingBubble) loadingBubble.closest('.flex').remove();
-      clearTimeout(timer30); clearTimeout(timer60); clearInterval(loadingInterval);
-      appendBubble('bot', `<p class="text-red-600 text-sm">⚠️ Network error: ${escapeHtml(String(err))}</p>`);
+      clearTimeout(timer30); clearTimeout(timer60);
+      appendBubble('bot', `<p class="text-red-600 text-sm">⚠️ Network error: ${escapeHtml(String(err.message || err))}</p>`);
     } finally {
       if (!activeController || !activeController.signal.aborted) {
         sendBtn.disabled = false;
