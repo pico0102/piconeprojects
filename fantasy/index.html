@@ -296,23 +296,37 @@
 
     clearTimeout(timer30); clearTimeout(timer60); clearInterval(loadingInterval);
 
-    const loadingTasks = [
-      "Fetching live Sleeper state...",
-      "Syncing league rosters...",
-      "Analyzing matchup history...",
-      "Scanning trending waiver targets...",
-      "Blending actual points with projections...",
-      "Consulting the AI GM..."
-    ];
+    const loadingTasks = currentLeagueContext === 'survivor' 
+      ? [
+          "Syncing survivor pool state...",
+          "Fetching latest Vegas odds...",
+          "Analyzing public pick trends...",
+          "Evaluating future week value...",
+          "Calculating win probabilities...",
+          "Formulating survivor pick...",
+          "Finalizing recommendation..."
+        ]
+      : [
+          "Fetching live Sleeper state...",
+          "Syncing league rosters...",
+          "Analyzing matchup history...",
+          "Scanning trending waiver targets...",
+          "Blending actual points with projections...",
+          "Running lineup optimization...",
+          "Evaluating trade deltas...",
+          "Reviewing injury reports...",
+          "Formulating GM recommendation...",
+          "Finalizing response..."
+        ];
     let taskIndex = 0;
 
     loadingInterval = setInterval(() => {
       const lt = document.getElementById('loading-text');
-      if (lt && taskIndex < loadingTasks.length) {
-        lt.innerText = loadingTasks[taskIndex];
+      if (lt) {
+        lt.innerText = loadingTasks[taskIndex % loadingTasks.length];
         taskIndex++;
       }
-    }, 800);
+    }, 1200);
 
     timer30 = setTimeout(() => {
       const lt = document.getElementById('loading-text');
