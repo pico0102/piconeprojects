@@ -253,6 +253,7 @@
   let activeController = null;
   let timer30 = null;
   let timer60 = null;
+  let loadingInterval = null;
   let currentQuery = "";
 
   function cancelRequest(e) {
@@ -261,7 +262,7 @@
       activeController.abort();
       activeController = null;
     }
-    clearTimeout(timer30); clearTimeout(timer60);
+    clearTimeout(timer30); clearTimeout(timer60); clearInterval(loadingInterval);
     const loadingBubble = document.getElementById('loading-bubble');
     if (loadingBubble) {
       loadingBubble.closest('.flex').remove();
@@ -293,7 +294,25 @@
     if (activeController) activeController.abort();
     activeController = new AbortController();
 
-    clearTimeout(timer30); clearTimeout(timer60);
+    clearTimeout(timer30); clearTimeout(timer60); clearInterval(loadingInterval);
+
+    const loadingTasks = [
+      "Fetching live Sleeper state...",
+      "Syncing league rosters...",
+      "Analyzing matchup history...",
+      "Scanning trending waiver targets...",
+      "Blending actual points with projections...",
+      "Consulting the AI GM..."
+    ];
+    let taskIndex = 0;
+
+    loadingInterval = setInterval(() => {
+      const lt = document.getElementById('loading-text');
+      if (lt && taskIndex < loadingTasks.length) {
+        lt.innerText = loadingTasks[taskIndex];
+        taskIndex++;
+      }
+    }, 800);
 
     timer30 = setTimeout(() => {
       const lt = document.getElementById('loading-text');
@@ -315,7 +334,7 @@
 
       const loadingBubble = document.getElementById('loading-bubble');
       if (loadingBubble) loadingBubble.closest('.flex').remove();
-      clearTimeout(timer30); clearTimeout(timer60);
+      clearTimeout(timer30); clearTimeout(timer60); clearInterval(loadingInterval);
 
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({ detail: 'Server error' }));
@@ -329,7 +348,7 @@
       if (err.name === 'AbortError') return;
       const loadingBubble = document.getElementById('loading-bubble');
       if (loadingBubble) loadingBubble.closest('.flex').remove();
-      clearTimeout(timer30); clearTimeout(timer60);
+      clearTimeout(timer30); clearTimeout(timer60); clearInterval(loadingInterval);
       appendBubble('bot', `<p class="text-red-600 text-sm">⚠️ Network error: ${escapeHtml(String(err))}</p>`);
     } finally {
       if (!activeController || !activeController.signal.aborted) {
