@@ -1,682 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>🏈 Fantasy Assistant</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tony Romo's DUI Mugshot — GM API v3.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { 50:'#fff7ed', 100:'#ffedd5', 500:'#f97316', 600:'#ea580c', 700:'#c2410c' }
-          }
-        }
-      }
-    }
-  </script>
-  <!-- marked.js for markdown rendering -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    /* Hide scrollbars for clean mobile horizontally-scrolling button bar */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* Custom scrollbar for chat log */
-    #chat-log::-webkit-scrollbar { width: 5px; }
-    #chat-log::-webkit-scrollbar-track { background: transparent; }
-    #chat-log::-webkit-scrollbar-thumb { background: #fdba74; border-radius: 9999px; }
-
-    /* Prose styling for AI answers */
-    .prose-answer h1,.prose-answer h2,.prose-answer h3 { font-weight:700; margin:.75em 0 .25em; }
-    .prose-answer h2 { font-size:1.05rem; color:#c2410c; }
-    .prose-answer h3 { font-size:.95rem; color:#ea580c; }
-    .prose-answer p  { margin:.35em 0; }
-    .prose-answer ul,.prose-answer ol { padding-left:1.25em; margin:.35em 0; }
-    .prose-answer li { margin:.15em 0; }
-    .prose-answer table { border-collapse:collapse; width:100%; font-size:.82rem; margin:.5em 0; }
-    .prose-answer th  { background:#fff7ed; color:#c2410c; padding:5px 8px; text-align:left; border-bottom:2px solid #f97316; }
-    .prose-answer td  { padding:4px 8px; border-bottom:1px solid #fed7aa; }
-    .prose-answer code { background:#fff7ed; color:#c2410c; padding:1px 4px; border-radius:4px; font-size:.85em; }
-    .prose-answer pre code { background:transparent; padding:0; }
-    .prose-answer pre  { background:#1e293b; color:#e2e8f0; padding:.75em 1em; border-radius:8px; overflow-x:auto; font-size:.82em; margin:.5em 0; }
-    .prose-answer strong { color:#1e293b; }
-    .prose-answer blockquote { border-left:3px solid #f97316; padding-left:.75em; color:#57534e; font-style:italic; }
-
-    .dot-flashing { display:inline-flex; gap:4px; }
-    .dot-flashing span { width:7px; height:7px; border-radius:50%; background:#f97316; animation:dotFlash 1.2s infinite; }
-    .dot-flashing span:nth-child(2) { animation-delay:.2s; }
-    .dot-flashing span:nth-child(3) { animation-delay:.4s; }
-    @keyframes dotFlash { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+    #chat-box::-webkit-scrollbar { width: 5px; }
+    #chat-box::-webkit-scrollbar-track { background: transparent; }
+    #chat-box::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
   </style>
 </head>
-<body class="bg-gray-50 h-[100dvh] max-h-[100dvh] flex flex-col font-sans overflow-hidden">
-
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
   <!-- Header -->
-  <header class="bg-brand-600 text-white px-4 py-3 shadow-md flex items-center gap-3 flex-shrink-0 z-20">
-    <span class="text-2xl select-none">🏈</span>
-    <div class="flex-1 min-w-0">
-      <p id="header-title" class="font-bold text-sm leading-tight truncate">Tony Romo's DUI Mugshot</p>
-      <p id="header-subtitle" class="text-xs text-orange-200 leading-tight truncate">Loser eats an egg • half-PPR</p>
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-4 py-3">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div>
+        <h1 class="text-base font-bold text-white flex items-center gap-2">
+          🏈 <span>Tony Romo's DUI Mugshot (v3.0)</span>
+          <span class="text-xs font-mono bg-blue-900/60 text-blue-300 border border-blue-700/50 px-1.5 py-0.5 rounded">v2 Reasoner</span>
+        </h1>
+        <p class="text-xs text-slate-400">12-Team Half-PPR · Loser eats an egg</p>
+      </div>
+      <!-- Mode Toggle -->
+      <div class="flex items-center gap-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
+        <button id="btn-fantasy" onclick="setMode('fantasy')" class="px-2.5 py-1 text-xs font-semibold rounded bg-blue-600 text-white transition">Fantasy GM</button>
+        <button id="btn-survivor" onclick="setMode('survivor')" class="px-2.5 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white transition">Survivor</button>
+      </div>
     </div>
-    
-    <!-- League Context Toggle -->
-    <div class="flex items-center space-x-2 text-xs mr-1 flex-shrink-0">
-      <span id="label-egg" class="font-bold text-white">Egg</span>
-      <button id="league-toggle" class="relative inline-flex h-5 w-10 items-center rounded-full bg-brand-700 transition-colors focus:outline-none ring-1 ring-brand-500" onclick="toggleLeague()" title="Toggle League Context">
-        <span id="toggle-knob" class="inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform translate-x-1"></span>
-      </button>
-      <span id="label-survivor" class="text-brand-200">Survivor</span>
-    </div>
-
-    <!-- Clear Chat Button -->
-    <button onclick="clearHistory()" class="text-orange-200 hover:text-white p-1 rounded hover:bg-brand-700/50 transition-colors" title="Clear chat history">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-      </svg>
-    </button>
-
-    <!-- Health Status Indicator Badge -->
-    <button onclick="openHealthModal()" class="flex items-center gap-1.5 focus:outline-none p-1 rounded hover:bg-brand-700/50 transition-colors" title="Click to view API Health details">
-      <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-gray-300 shadow"></span>
-      <span id="status-text" class="text-[10px] text-orange-200 hidden sm:inline">Checking</span>
-    </button>
   </header>
 
-  <!-- Health Diagnostics Modal -->
-  <div id="health-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-xl border border-gray-100 space-y-3">
-      <div class="flex items-center justify-between border-b pb-2">
-        <h3 class="font-bold text-gray-800 text-sm flex items-center gap-2">
-          <span>🩺</span> Backend System Health
-        </h3>
-        <button onclick="closeHealthModal()" class="text-gray-400 hover:text-gray-600 text-lg leading-none">&times;</button>
+  <!-- Subsystems Health & Alerts Bar -->
+  <section class="bg-slate-900/50 border-b border-slate-800/80 px-4 py-2">
+    <div class="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div id="health-pills" class="flex flex-wrap items-center gap-2 text-slate-400">
+        <span class="flex items-center gap-1"><span id="sleeper-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span> Sleeper</span>
+        <span class="flex items-center gap-1"><span id="board-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span> Board (Audited)</span>
+        <span class="flex items-center gap-1"><span id="news-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span> News/Depth</span>
+        <span class="flex items-center gap-1"><span id="odds-dot" class="w-2 h-2 rounded-full bg-amber-500"></span> Odds API</span>
+        <span class="flex items-center gap-1"><span id="gemini-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span> Gemini 3.8 Flash</span>
       </div>
-      <div id="health-details" class="text-xs space-y-2 text-gray-600">
-        <p class="text-gray-400">Loading component telemetry...</p>
-      </div>
-      <div class="pt-2 border-t flex justify-between items-center">
-        <button onclick="refreshHealth()" class="text-xs text-brand-600 hover:underline">Re-check Now</button>
-        <button onclick="closeHealthModal()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg">Close</button>
-      </div>
+      <div id="active-week-label" class="text-slate-300 font-mono text-xs">Week Active</div>
     </div>
-  </div>
+  </section>
 
-  <!-- Chat log (Only container that scrolls) -->
-  <main id="chat-log" class="flex-1 min-h-0 overflow-y-auto px-3 py-4 space-y-3 max-w-2xl w-full mx-auto">
-    <!-- Welcome bubble -->
-    <div class="flex gap-2 items-start" id="welcome-message">
-      <span class="text-xl flex-shrink-0 mt-0.5">🤖</span>
-      <div class="bg-white border border-orange-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-prose">
-        <p class="text-sm text-gray-700">Hey Anthony 👋 — Watching your roster live. Tap a button or ask any waiver, lineup, or matchup question.</p>
-      </div>
+  <!-- Quick Prompts -->
+  <section class="px-4 py-2 bg-slate-900/30 border-b border-slate-800/40">
+    <div class="max-w-4xl mx-auto flex gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
+      <button onclick="askQuestion('Should I pick up Kirk Cousins?')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">⚠️ Kirk Cousins pickup?</button>
+      <button onclick="askQuestion('Evaluate Baker Mayfield status and floor')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">🏥 Baker Mayfield floor?</button>
+      <button onclick="askQuestion('Since Jahmyr Gibbs is on bye this week in Week 6, should I drop him?')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">🔎 Gibbs bye week check</button>
+      <button onclick="askQuestion('Who is my best verified survivor pick this week?')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">🛡️ Best Survivor Pick</button>
+    </div>
+  </section>
+
+  <!-- Chat Log -->
+  <main id="chat-box" class="flex-1 max-w-4xl w-full mx-auto p-4 overflow-y-auto space-y-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+      <div class="font-bold text-sm text-blue-400 mb-1">🤖 Gemini Flash 3.8 Reasoner Ready</div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Grounded in single-sourced Week 6 Sleeper state, audited tier valuations (v1 bias stripped),
+        live depth-chart role statuses, and verified Vegas point spreads.
+      </p>
     </div>
   </main>
 
-  <!-- Fixed Bottom Dock (Never overlaps on scroll) -->
-  <div class="flex-shrink-0 bg-white border-t border-gray-200 p-2 sm:p-3 max-w-2xl w-full mx-auto space-y-2 z-10 shadow-lg">
-    <!-- Quick-action buttons row (scrolls horizontally on small screens without wrapping) -->
-    <div id="quick-btns" class="flex gap-2 overflow-x-auto no-scrollbar py-0.5">
-      <button onclick="sendQuick('Analyze my lineup for this week and tell me who to start.')"
-        class="quick-btn whitespace-nowrap bg-brand-50 border border-brand-500 text-brand-700 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-500 hover:text-white transition-colors">
-        📋 Analyze Lineup
-      </button>
-      <button onclick="sendQuick('What are the best waiver wire pickups available for my team right now?')"
-        class="quick-btn whitespace-nowrap bg-brand-50 border border-brand-500 text-brand-700 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-500 hover:text-white transition-colors">
-        📡 Waiver Targets
-      </button>
-      <button onclick="sendQuick('Give me a start/sit decision breakdown for my flex spots and any close calls this week.')"
-        class="quick-btn whitespace-nowrap bg-brand-50 border border-brand-500 text-brand-700 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-500 hover:text-white transition-colors">
-        ⚖️ Start / Sit
-      </button>
-      <button onclick="sendQuick('Give me a matchup preview for this week — who are the key players and what does this week turn on?')"
-        class="quick-btn whitespace-nowrap bg-brand-50 border border-brand-500 text-brand-700 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-500 hover:text-white transition-colors">
-        🔍 Matchup Preview
+  <!-- Input Form -->
+  <footer class="border-t border-slate-800 bg-slate-900/90 backdrop-blur p-4 sticky bottom-0">
+    <div class="max-w-4xl mx-auto flex gap-2">
+      <input id="prompt-input" type="text" placeholder="Ask your GM anything (e.g. waiver advice, start/sit, survivor)..."
+             class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+             onkeydown="if(event.key==='Enter') submitPrompt()">
+      <button onclick="submitPrompt()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-2.5 rounded-xl text-sm transition">
+        Send
       </button>
     </div>
+  </footer>
 
-    <!-- Input bar -->
-    <form id="chat-form" class="flex gap-2 items-end">
-      <textarea
-        id="user-input"
-        rows="1"
-        placeholder="Ask about your roster, waivers, trades…"
-        class="flex-1 resize-none rounded-2xl border border-gray-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 px-4 py-2.5 text-sm outline-none leading-snug max-h-32 overflow-y-auto"
-        onkeydown="handleKey(event)"
-      ></textarea>
-      <button
-        type="submit"
-        id="send-btn"
-        class="flex-shrink-0 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white rounded-2xl p-2.5 transition-all shadow disabled:opacity-50 disabled:pointer-events-none"
-        aria-label="Send">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-          <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-        </svg>
-      </button>
-    </form>
-  </div>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const API_BASE = urlParams.get('api') || 'https://fantasy-ai-service-519501469706.us-east1.run.app';
+    let activeMode = 'fantasy';
 
-<script>
-  const chatLog   = document.getElementById('chat-log');
-  const userInput = document.getElementById('user-input');
-  const sendBtn   = document.getElementById('send-btn');
-  const chatForm  = document.getElementById('chat-form');
-
-  // Allow URL query override: ?api=http://127.0.0.1:8080 for testing
-  const urlParams = new URLSearchParams(window.location.search);
-  const API_BASE = urlParams.get('api') || 'https://fantasy-ai-service-519501469706.us-east1.run.app';
-
-  let currentLeagueContext = "egg";
-  let activeController = null;
-  let timer30 = null;
-  let timer60 = null;
-  let currentQuery = "";
-  let isRequestInProgress = false;
-
-  // Auto-grow textarea
-  userInput.addEventListener('input', () => {
-    userInput.style.height = 'auto';
-    userInput.style.height = Math.min(userInput.scrollHeight, 128) + 'px';
-  });
-
-  function handleKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) { 
-      e.preventDefault(); 
-      submitQuery(); 
-    }
-  }
-
-  chatForm.addEventListener('submit', e => { 
-    e.preventDefault(); 
-    submitQuery(); 
-  });
-
-  function sendQuick(text) { 
-    if (isRequestInProgress) return;
-    userInput.value = text; 
-    submitQuery(); 
-  }
-
-  function scrollBottom() {
-    chatLog.scrollTo({ top: chatLog.scrollHeight, behavior: 'smooth' });
-  }
-
-  function escapeHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  // -------------------------------------------------------------------------
-  // LocalStorage History Persistence
-  // -------------------------------------------------------------------------
-  function getHistoryKey() {
-    return `fantasy_chat_history_${currentLeagueContext}`;
-  }
-
-  function loadHistory() {
-    try {
-      const stored = localStorage.getItem(getHistoryKey());
-      if (stored) {
-        const messages = JSON.parse(stored);
-        chatLog.innerHTML = '';
-        messages.forEach(m => {
-          appendBubble(m.role, m.html, false, m.extraData, false);
-        });
-        scrollBottom();
-        return;
-      }
-    } catch(e) {}
-    // Default welcome
-    const isSurvivor = currentLeagueContext === 'survivor';
-    const icon = isSurvivor ? '🏈' : '🤖';
-    const welcomeText = isSurvivor
-      ? 'Hey Anthony 👋 — Watching Fat Crew Survivor live. Tap a button or ask who to pick this week.'
-      : 'Hey Anthony 👋 — Watching your roster live. Tap a button or ask any waiver, lineup, or matchup question.';
-    chatLog.innerHTML = `
-      <div class="flex gap-2 items-start" id="welcome-message">
-        <span class="text-xl flex-shrink-0 mt-0.5">${icon}</span>
-        <div class="bg-white border border-orange-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-prose">
-          <p class="text-sm text-gray-700">${welcomeText}</p>
-        </div>
-      </div>`;
-  }
-
-  function saveMessageToHistory(role, html, extraData = null) {
-    try {
-      const key = getHistoryKey();
-      let messages = [];
-      const stored = localStorage.getItem(key);
-      if (stored) messages = JSON.parse(stored);
-      messages.push({ role, html, extraData, timestamp: Date.now() });
-      if (messages.length > 40) messages = messages.slice(-40);
-      localStorage.setItem(key, JSON.stringify(messages));
-    } catch(e) {}
-  }
-
-  function clearHistory() {
-    if (confirm("Clear chat history for this league?")) {
-      localStorage.removeItem(getHistoryKey());
-      loadHistory();
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // Bubble Rendering
-  // -------------------------------------------------------------------------
-  function appendBubble(role, html, isLoading = false, extraData = null, save = true) {
-    const wrap = document.createElement('div');
-    wrap.className = 'flex gap-2 items-start';
-
-    if (role === 'user') {
-      wrap.innerHTML = `
-        <div class="ml-auto bg-brand-600 text-white rounded-2xl rounded-tr-sm px-4 py-2.5 shadow-sm max-w-prose text-sm leading-relaxed">
-          ${escapeHtml(html)}
-        </div>
-        <span class="text-xl flex-shrink-0 mt-0.5 select-none">👤</span>`;
-      if (save) saveMessageToHistory('user', html, null);
-    } else {
-      let footerHtml = '';
-      if (!isLoading && extraData && extraData.latency_ms !== undefined) {
-        const latencySec = (extraData.latency_ms / 1000).toFixed(1);
-        let pillsHtml = '';
-        let detailsHtml = '';
-        if (extraData.data_sources) {
-           const sources = Object.entries(extraData.data_sources);
-           if (sources.length > 0) {
-             const pills = sources.map(([key, val]) => {
-                const isOk = val && val.status === 'ok';
-                const icon = isOk ? '🟢' : '🔴';
-                const colorClass = isOk ? 'text-green-600' : 'text-red-500';
-                const name = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                return `<span class="${colorClass}">${icon} ${name}</span>`;
-             }).join('  ');
-             pillsHtml = ` | <span class="cursor-pointer hover:underline" onclick="this.parentElement.nextElementSibling.classList.toggle('hidden')">${pills}</span>`;
-             
-             const detailsRows = sources.map(([key, val]) => {
-                const name = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-                const detail = val ? (val.detail || val.error || val.status) : 'unknown';
-                return `<div><strong>${name}:</strong> ${escapeHtml(detail)}</div>`;
-             }).join('');
-             detailsHtml = `<div class="hidden mt-2 p-2 bg-gray-100 rounded text-xs text-gray-600">${detailsRows}</div>`;
-           }
-        }
-        footerHtml = `<div class="mt-2 pt-2 border-t border-gray-100 text-xs text-gray-400">⚡ ${latencySec}s ${pillsHtml}</div>${detailsHtml}`;
-      }
-
-      const inner = isLoading
-        ? `<div class="flex flex-col items-start gap-1">
-             <div class="flex items-center gap-2">
-               <span id="loading-text" class="text-xs text-orange-500 font-semibold tracking-wide uppercase">Connecting...</span>
-               <button id="retry-btn" class="hidden text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded border border-orange-200 hover:bg-orange-200 transition-colors" onclick="submitQuery(true)">Retry</button>
-             </div>
-             <div class="dot-flashing mt-1"><span></span><span></span><span></span></div>
-             <a href="#" id="cancel-link" class="text-[10px] text-gray-400 hover:text-gray-600 underline mt-1" onclick="cancelRequest(event)">Cancel</a>
-           </div>`
-        : `<div class="prose-answer text-sm text-gray-800">${html}</div>${footerHtml}`;
-
-      wrap.innerHTML = `
-        <span class="text-xl flex-shrink-0 mt-0.5 select-none">🤖</span>
-        <div id="${isLoading ? 'loading-bubble' : ''}" class="bg-white border border-orange-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm max-w-prose min-w-[80px] w-full">
-          ${inner}
-        </div>`;
-
-      if (!isLoading && save) {
-        saveMessageToHistory('bot', html, extraData);
-      }
-    }
-    chatLog.appendChild(wrap);
-    scrollBottom();
-    return wrap;
-  }
-
-  function appendErrorBubble(errMsg) {
-    const errorHtml = `
-      <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm space-y-1">
-        <p class="font-semibold flex items-center gap-1"><span>⚠️</span> Error communicating with AI GM</p>
-        <p class="text-xs text-red-600 font-mono">${escapeHtml(errMsg)}</p>
-        <div class="pt-1 flex gap-2">
-          <button onclick="submitQuery(true)" class="text-xs bg-red-100 hover:bg-red-200 text-red-800 px-2 py-0.5 rounded transition-colors">Retry Query</button>
-        </div>
-      </div>`;
-    appendBubble('bot', errorHtml, false, null, true);
-  }
-
-  // -------------------------------------------------------------------------
-  // Request Handling & SSE Parsing
-  // -------------------------------------------------------------------------
-  function setControlsDisabled(disabled) {
-    isRequestInProgress = disabled;
-    sendBtn.disabled = disabled;
-    document.querySelectorAll('.quick-btn').forEach(btn => {
-      btn.disabled = disabled;
-      btn.classList.toggle('opacity-50', disabled);
-    });
-  }
-
-  function cancelRequest(e) {
-    if (e) e.preventDefault();
-    if (activeController) {
-      activeController.abort();
-      activeController = null;
-    }
-    clearTimeout(timer30); clearTimeout(timer60);
-    const loadingBubble = document.getElementById('loading-bubble');
-    if (loadingBubble) {
-      loadingBubble.closest('.flex').remove();
-      appendBubble('bot', `<p class="text-gray-500 text-sm italic">Request cancelled</p>`, false, null, true);
-    }
-    setControlsDisabled(false);
-  }
-
-  async function submitQuery(isRetry = false) {
-    const q = isRetry === true ? currentQuery : userInput.value.trim();
-    if (!q || isRequestInProgress) return;
-
-    if (isRetry !== true) {
-      currentQuery = q;
-      userInput.value = '';
-      userInput.style.height = 'auto';
-      appendBubble('user', q);
-    }
-
-    setControlsDisabled(true);
-
-    const oldLoading = document.getElementById('loading-bubble');
-    if (oldLoading) oldLoading.closest('.flex').remove();
-
-    appendBubble('bot', '', true);
-
-    if (activeController) activeController.abort();
-    activeController = new AbortController();
-
-    clearTimeout(timer30); clearTimeout(timer60);
-    const lt = document.getElementById('loading-text');
-    if (lt) lt.innerText = "Connecting...";
-
-    timer30 = setTimeout(() => {
-      const elt = document.getElementById('loading-text');
-      if (elt) elt.innerText = 'Analyzing full league data...';
-    }, 15000);
-
-    timer60 = setTimeout(() => {
-      const rb = document.getElementById('retry-btn');
-      if (rb) rb.classList.remove('hidden');
-    }, 45000);
-
-    try {
-      const resp = await fetch(`${API_BASE}/api/chat_stream`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: q, league_context: currentLeagueContext }),
-        signal: activeController.signal
-      });
-
-      if (!resp.ok) {
-        let errDetail = `Server responded with HTTP ${resp.status}`;
-        try {
-          const errJson = await resp.json();
-          errDetail = errJson.detail || errJson.error || errDetail;
-        } catch(e) {}
-        throw new Error(errDetail);
-      }
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let done = false;
-      let finalData = null;
-      let buffer = '';
-
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        if (value) {
-          buffer += decoder.decode(value, { stream: true });
-          
-          // Split on double newline SSE boundaries
-          const blocks = buffer.split('\n\n');
-          buffer = blocks.pop() || ''; // Keep incomplete trailing fragment in buffer
-
-          for (const block of blocks) {
-            for (const line of block.split('\n')) {
-              const trimmed = line.trim();
-              if (trimmed.startsWith('data: ')) {
-                const rawJson = trimmed.substring(6).trim();
-                try {
-                  const data = JSON.parse(rawJson);
-                  if (data.status) {
-                    const elt = document.getElementById('loading-text');
-                    if (elt) elt.innerText = data.status;
-                  }
-                  if (data.type === 'error' || data.error) {
-                    throw new Error(data.detail || data.error || 'Server error in stream');
-                  }
-                  if (data.type === 'result' || data.answer) {
-                    finalData = data;
-                  }
-                } catch(parseErr) {
-                  // If it was our explicit thrown error, re-throw to outer catch
-                  if (parseErr.message && !parseErr.message.includes('JSON')) {
-                    throw parseErr;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // Check remaining buffer if stream ended without trailing \n\n
-      if (buffer.trim().startsWith('data: ')) {
-        try {
-          const data = JSON.parse(buffer.trim().substring(6));
-          if (data.type === 'result' || data.answer) finalData = data;
-        } catch(e) {}
-      }
-
-      const loadingBubble = document.getElementById('loading-bubble');
-      if (loadingBubble) loadingBubble.closest('.flex').remove();
-      clearTimeout(timer30); clearTimeout(timer60);
-
-      if (finalData && finalData.answer) {
-        const renderedMd = marked.parse(finalData.answer);
-        appendBubble('bot', renderedMd, false, finalData);
+    function setMode(mode) {
+      activeMode = mode;
+      const bFan = document.getElementById('btn-fantasy');
+      const bSur = document.getElementById('btn-survivor');
+      if (mode === 'survivor') {
+        bSur.className = "px-2.5 py-1 text-xs font-semibold rounded bg-amber-600 text-white transition";
+        bFan.className = "px-2.5 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white transition";
       } else {
-        throw new Error("Stream finished without a valid answer from backend.");
-      }
-
-    } catch (err) {
-      if (err.name === 'AbortError') return;
-      const loadingBubble = document.getElementById('loading-bubble');
-      if (loadingBubble) loadingBubble.closest('.flex').remove();
-      clearTimeout(timer30); clearTimeout(timer60);
-
-      appendErrorBubble(err.message || String(err));
-      // Flag status dot as degraded/offline
-      updateStatusBadge('error', 'API error on last request');
-    } finally {
-      if (!activeController || !activeController.signal.aborted) {
-        setControlsDisabled(false);
-        userInput.focus();
-        scrollBottom();
+        bFan.className = "px-2.5 py-1 text-xs font-semibold rounded bg-blue-600 text-white transition";
+        bSur.className = "px-2.5 py-1 text-xs font-semibold rounded text-slate-300 hover:text-white transition";
       }
     }
-  }
 
-  // -------------------------------------------------------------------------
-  // Health Diagnostics Telemetry
-  // -------------------------------------------------------------------------
-  function updateStatusBadge(status, title) {
-    const dot = document.getElementById('status-dot');
-    const txt = document.getElementById('status-text');
-    
-    if (status === 'ok') {
-      dot.className = 'w-2.5 h-2.5 rounded-full bg-green-400 shadow shadow-green-400/50';
-      txt.innerText = 'Online';
-      txt.className = 'text-[10px] text-green-200 hidden sm:inline';
-    } else if (status === 'degraded') {
-      dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 shadow shadow-amber-400/50';
-      txt.innerText = 'Degraded';
-      txt.className = 'text-[10px] text-amber-200 hidden sm:inline';
-    } else {
-      dot.className = 'w-2.5 h-2.5 rounded-full bg-red-400 shadow shadow-red-400/50';
-      txt.innerText = 'Offline';
-      txt.className = 'text-[10px] text-red-200 hidden sm:inline';
+    function askQuestion(q) {
+      document.getElementById('prompt-input').value = q;
+      submitPrompt();
     }
-    dot.title = title || `API ${status}`;
-  }
 
-  async function checkHealth() {
-    try {
-      const resp = await fetch(`${API_BASE}/api/health`, { timeout: 8000 });
-      if (resp.ok) {
+    async function submitPrompt() {
+      const input = document.getElementById('prompt-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+
+      const chatBox = document.getElementById('chat-box');
+
+      // User Bubble
+      const uBubble = document.createElement('div');
+      uBubble.className = "ml-auto max-w-xl bg-blue-600 text-white rounded-2xl rounded-tr-none px-4 py-2.5 text-sm";
+      uBubble.innerText = text;
+      chatBox.appendChild(uBubble);
+
+      // Loading bubble
+      const lBubble = document.createElement('div');
+      lBubble.className = "mr-auto max-w-xl bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 text-xs text-slate-400";
+      lBubble.innerText = "Reasoning over verified WorldStateSnapshot...";
+      chatBox.appendChild(lBubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const resp = await fetch(`${API_BASE}/api/chat`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({message: text, mode: activeMode, used_teams: []})
+        });
         const data = await resp.json();
-        updateStatusBadge(data.status, `API ${data.status}`);
-        return data;
+
+        // Render Markdown answer
+        let provBadges = '';
+        if (data.provenance && data.provenance.length > 0) {
+          provBadges = '<div class="mt-3 pt-2 border-t border-slate-800/80 flex flex-wrap gap-1.5">' +
+            data.provenance.map(p => `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono ${p.status === 'ok' ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/40' : 'bg-amber-950/80 text-amber-400 border border-amber-800/40'}">${p.source_id} (${p.status})</span>`).join('') +
+            '</div>';
+        }
+
+        lBubble.innerHTML = `<div class="prose prose-invert prose-xs text-slate-200">${marked.parse(data.response || data.answer || '')}</div>${provBadges}`;
+      } catch (err) {
+        lBubble.innerHTML = `<span class="text-rose-400 font-semibold">Error:</span> ${err.message}`;
       }
-      // Fallback to /health
-      const fb = await fetch(`${API_BASE}/health`);
-      if (fb.ok) {
-        updateStatusBadge('ok', 'API online');
-        return { status: 'ok', components: { legacy: { status: 'ok', detail: 'Basic health endpoint' } } };
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Load initial health
+    fetch(`${API_BASE}/health`).then(r => r.json()).then(data => {
+      if (data.canonical_nfl_week) {
+        document.getElementById('active-week-label').innerText = `Week ${data.canonical_nfl_week} Active`;
       }
-      updateStatusBadge('error', 'API returned error');
-    } catch(e) {
-      updateStatusBadge('error', 'API unreachable');
-    }
-    return null;
-  }
-
-  async function openHealthModal() {
-    document.getElementById('health-modal').classList.remove('hidden');
-    await refreshHealth();
-  }
-
-  function closeHealthModal() {
-    document.getElementById('health-modal').classList.add('hidden');
-  }
-
-  async function refreshHealth() {
-    const container = document.getElementById('health-details');
-    container.innerHTML = '<p class="text-gray-400">Pinging backend telemetry...</p>';
-    const data = await checkHealth();
-    if (!data || !data.components) {
-      container.innerHTML = `
-        <div class="p-2 bg-red-50 text-red-700 rounded border border-red-200">
-          <strong>Backend Offline or Unreachable</strong><br>
-          Could not connect to ${escapeHtml(API_BASE)}.
-        </div>`;
-      return;
-    }
-
-    const rows = Object.entries(data.components).map(([k, v]) => {
-      const isOk = v.status === 'ok';
-      const isDeg = v.status === 'degraded';
-      const icon = isOk ? '🟢' : (isDeg ? '🟡' : '🔴');
-      const label = k.replace(/_/g, ' ').toUpperCase();
-      const detail = v.detail || v.error || v.status;
-      return `<div class="flex items-start justify-between py-1 border-b border-gray-100">
-        <span class="font-semibold text-gray-700">${icon} ${label}:</span>
-        <span class="text-right text-gray-500">${escapeHtml(detail)}</span>
-      </div>`;
-    }).join('');
-
-    container.innerHTML = `
-      <div class="space-y-1">
-        <p class="font-bold text-xs ${data.status === 'ok' ? 'text-green-600' : 'text-amber-600'}">Status: ${data.status.toUpperCase()} (v${data.version || '3.1'})</p>
-        ${rows}
-      </div>`;
-  }
-
-  // -------------------------------------------------------------------------
-  // Context Toggle & Dynamic Quick Buttons
-  // -------------------------------------------------------------------------
-  function updateQuickButtons() {
-    const qb = document.getElementById('quick-btns');
-    if (!qb) return;
-    if (currentLeagueContext === "survivor") {
-      qb.innerHTML = `
-        <button onclick="sendQuick('Who should I pick in survivor this week?')"
-          class="quick-btn whitespace-nowrap bg-slate-100 border border-slate-400 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-slate-700 hover:text-white transition-colors">
-          🎯 Survivor Pick
-        </button>
-        <button onclick="sendQuick('What is the safest survivor pick with the highest win probability?')"
-          class="quick-btn whitespace-nowrap bg-slate-100 border border-slate-400 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-slate-700 hover:text-white transition-colors">
-          🛡️ Safest Pick
-        </button>
-        <button onclick="sendQuick('Give me a contrarian survivor pick with high leverage.')"
-          class="quick-btn whitespace-nowrap bg-slate-100 border border-slate-400 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-slate-700 hover:text-white transition-colors">
-          🔀 Contrarian Pivot
-        </button>
-        <button onclick="sendQuick('Which elite teams should I save for future weeks?')"
-          class="quick-btn whitespace-nowrap bg-slate-100 border border-slate-400 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-slate-700 hover:text-white transition-colors">
-          🔮 Future Value
-        </button>
-      `;
-    } else {
-      qb.innerHTML = `
-        <button onclick="sendQuick('Analyze my lineup for this week and tell me who to start.')"
-          class="quick-btn whitespace-nowrap bg-brand-50 border border-brand-500 text-brand-700 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-500 hover:text-white transition-colors">
-          📋 Analyze Lineup
-        </button>
-        <button onclick="sendQuick('What are the best waiver wire pickups available for my team right now?')"
-          class="quick-btn whitespace-nowrap bg-brand-50 border border-brand-500 text-brand-700 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-500 hover:text-white transition-colors">
-          📡 Waiver Targets
-        </button>
-        <button onclick="sendQuick('Give me a start/sit decision breakdown for my flex spots and any close calls this week.')"
-          class="quick-btn whitespace-nowrap bg-brand-50 border border-brand-500 text-brand-700 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-500 hover:text-white transition-colors">
-          ⚖️ Start / Sit
-        </button>
-        <button onclick="sendQuick('Give me a matchup preview for this week — who are the key players and what does this week turn on?')"
-          class="quick-btn whitespace-nowrap bg-brand-50 border border-brand-500 text-brand-700 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-500 hover:text-white transition-colors">
-          🔍 Matchup Preview
-        </button>
-      `;
-    }
-  }
-
-  function toggleLeague() {
-    currentLeagueContext = currentLeagueContext === "egg" ? "survivor" : "egg";
-    
-    const knob = document.getElementById("toggle-knob");
-    const labelEgg = document.getElementById("label-egg");
-    const labelSurvivor = document.getElementById("label-survivor");
-    const headerTitle = document.getElementById("header-title");
-    const headerSubtitle = document.getElementById("header-subtitle");
-    const header = document.querySelector("header");
-
-    if (currentLeagueContext === "survivor") {
-      knob.classList.replace("translate-x-1", "translate-x-5");
-      labelEgg.classList.replace("font-bold", "font-normal");
-      labelEgg.classList.replace("text-white", "text-brand-200");
-      labelSurvivor.classList.replace("font-normal", "font-bold");
-      labelSurvivor.classList.replace("text-brand-200", "text-white");
-      headerTitle.innerText = "Fat Crew Survivor";
-      headerSubtitle.innerText = "Pick 'em • Win the pool";
-      header.classList.replace("bg-brand-600", "bg-slate-800");
-      document.getElementById("league-toggle").classList.replace("bg-brand-700", "bg-slate-600");
-    } else {
-      knob.classList.replace("translate-x-5", "translate-x-1");
-      labelSurvivor.classList.replace("font-bold", "font-normal");
-      labelSurvivor.classList.replace("text-white", "text-brand-200");
-      labelEgg.classList.replace("font-normal", "font-bold");
-      labelEgg.classList.replace("text-brand-200", "text-white");
-      headerTitle.innerText = "Tony Romo's DUI Mugshot";
-      headerSubtitle.innerText = "Loser eats an egg • half-PPR";
-      header.classList.replace("bg-slate-800", "bg-brand-600");
-      document.getElementById("league-toggle").classList.replace("bg-slate-600", "bg-brand-700");
-    }
-
-    updateQuickButtons();
-    loadHistory();
-  }
-
-  // Initialize on load
-  window.addEventListener('DOMContentLoaded', () => {
-    updateQuickButtons();
-    loadHistory();
-    checkHealth();
-    setInterval(checkHealth, 60000);
-  });
-</script>
+      if (data.subsystems) {
+        if (data.subsystems.odds_api) {
+          const dot = document.getElementById('odds-dot');
+          dot.className = `w-2 h-2 rounded-full ${data.subsystems.odds_api.status === 'ok' ? 'bg-emerald-500' : 'bg-amber-500'}`;
+        }
+        if (data.subsystems.sleeper_api) {
+          const dot = document.getElementById('sleeper-dot');
+          dot.className = `w-2 h-2 rounded-full ${data.subsystems.sleeper_api.status === 'ok' ? 'bg-emerald-500' : 'bg-rose-500'}`;
+        }
+        if (data.subsystems.board_catalog) {
+          const dot = document.getElementById('board-dot');
+          dot.className = `w-2 h-2 rounded-full ${data.subsystems.board_catalog.status === 'ok' ? 'bg-emerald-500' : 'bg-rose-500'}`;
+        }
+        if (data.subsystems.news_depth_chart_feed) {
+          const dot = document.getElementById('news-dot');
+          dot.className = `w-2 h-2 rounded-full ${data.subsystems.news_depth_chart_feed.status === 'ok' ? 'bg-emerald-500' : 'bg-rose-500'}`;
+        }
+        if (data.subsystems.gemini_reasoner) {
+          const dot = document.getElementById('gemini-dot');
+          dot.className = `w-2 h-2 rounded-full ${data.subsystems.gemini_reasoner.status === 'ok' ? 'bg-emerald-500' : 'bg-rose-500'}`;
+        }
+      }
+    }).catch(e => console.log('Health probe failed', e));
+  </script>
 </body>
 </html>
