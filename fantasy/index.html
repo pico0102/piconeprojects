@@ -52,7 +52,7 @@
     <div class="max-w-4xl mx-auto flex gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
       <button onclick="askQuestion('Should I pick up Kirk Cousins?')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">⚠️ Kirk Cousins pickup?</button>
       <button onclick="askQuestion('Evaluate Baker Mayfield status and floor')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">🏥 Baker Mayfield floor?</button>
-      <button onclick="askQuestion('Since Jahmyr Gibbs is on bye this week in Week 6, should I drop him?')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">🔎 Gibbs bye week check</button>
+      <button onclick="askQuestion('Who on my roster is on bye this week, and who should I start or bench?')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">🔎 Bye week & lineup check</button>
       <button onclick="askQuestion('Who is my best verified survivor pick this week?')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">🛡️ Best Survivor Pick</button>
     </div>
   </section>
@@ -61,8 +61,8 @@
   <main id="chat-box" class="flex-1 max-w-4xl w-full mx-auto p-4 overflow-y-auto space-y-4">
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
       <div class="font-bold text-sm text-blue-400 mb-1">🤖 Gemini Flash 3.8 Reasoner Ready</div>
-      <p class="text-xs text-slate-300 leading-relaxed">
-        Grounded in single-sourced Week 6 Sleeper state, audited tier valuations (v1 bias stripped),
+      <p id="welcome-grounding-text" class="text-xs text-slate-300 leading-relaxed">
+        Grounded in live single-sourced Sleeper state, audited tier valuations (v1 bias stripped),
         live depth-chart role statuses, and verified Vegas point spreads.
       </p>
     </div>
@@ -151,6 +151,10 @@
     fetch(`${API_BASE}/health`).then(r => r.json()).then(data => {
       if (data.canonical_nfl_week) {
         document.getElementById('active-week-label').innerText = `Week ${data.canonical_nfl_week} Active`;
+        const welcomeText = document.getElementById('welcome-grounding-text');
+        if (welcomeText) {
+          welcomeText.innerText = `Grounded in single-sourced Week ${data.canonical_nfl_week} Sleeper state, audited tier valuations (v1 bias stripped), live depth-chart role statuses, and verified Vegas point spreads.`;
+        }
       }
       if (data.subsystems) {
         if (data.subsystems.odds_api) {
